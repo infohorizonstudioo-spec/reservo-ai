@@ -7,6 +7,7 @@ import type { Reservation } from '@/types'
 import AgendaClinica from '@/components/clinic/AgendaClinica'
 import AgendaVet from '@/components/vet/AgendaVet'
 import VisitasView from '@/components/realestate/VisitasView'
+import AgendaFisio from '@/components/physio/AgendaFisio'
 
 const HOURS = Array.from({length:14}, (_,i) => i + 9)
 
@@ -25,11 +26,13 @@ export default function AgendaPage() {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
   const [view, setView] = useState<'day'|'week'>('day')
+  const [rawTenantType, setRawTenantType] = useState<string>('')
 
   const load = useCallback(async () => {
     const t = await getDemoTenant()
     if (!t) return
     setTenantId(t.id)
+    setRawTenantType(t.type || '')
     const { data } = await supabase.from('reservations').select('*').eq('tenant_id', t.id).order('date').order('time')
     setReservations(data || [])
   }, [])
@@ -53,6 +56,7 @@ export default function AgendaPage() {
   if (tenantType === 'clinic') return <AgendaClinica tenantId={tenantId} />
   if (tenantType === 'veterinary') return <AgendaVet tenantId={tenantId} />
   if (tenantType === 'realestate') return <VisitasView tenantId={tenantId} />
+  if (rawTenantType === 'physiotherapy') return <AgendaFisio tenantId={tenantId} />
 
   // Restaurant agenda
   const dayRes = reservations.filter(r => r.date === selectedDate)

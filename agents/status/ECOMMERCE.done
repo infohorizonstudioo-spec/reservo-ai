@@ -1,0 +1,36 @@
+# HANDOFF: ECOMMERCE
+## Qué hice
+Sistema completo de ventas y atención al cliente para eCommerce:
+- Motor de detección de intención de compra y extracción de datos de producto
+- Panel de llamadas en tiempo real con captura de datos, stock y decisiones
+- Panel de pedidos con flujo de estados (nuevo → confirmado → preparando → enviado → entregado)
+- Catálogo de productos con toggle activo/inactivo y badges de stock
+- Vista de clientes eCommerce agregada desde pedidos
+- Memoria por tenant: productos más vendidos, patrones de compra, horarios pico
+- Integración condicional `if (tenantType === 'ecommerce')` en páginas compartidas
+
+## Archivos modificados
+- src/types/index.ts (añadido 'ecommerce' al union type de Tenant)
+- src/lib/tenant-context.ts (añadido 'ecommerce' a TenantType, useTenantType, getTenantConfig)
+- src/app/(dashboard)/pedidos/page.tsx (redirige a EcomOrdersPanel si ecommerce)
+- src/app/(dashboard)/clientes/page.tsx (redirige a EcomClientesView si ecommerce)
+- src/app/(dashboard)/llamadas/page.tsx (añade OrderCallPanel si ecommerce)
+
+## Archivos nuevos
+- src/types/ecommerce.ts
+- src/lib/ecommerce-engine.ts
+- src/lib/ecommerce-memory.ts
+- src/components/ecommerce/OrderCallPanel.tsx
+- src/components/ecommerce/EcomOrdersPanel.tsx
+- src/components/ecommerce/ProductCatalog.tsx
+- src/components/ecommerce/EcomClientesView.tsx
+
+## Tests que corren
+- Build de Next.js pasa (error pre-existente en ClinicNotifications.tsx no relacionado)
+
+## Advertencias para QA
+- Las tablas Supabase `order_events`, `ecom_orders`, `products` no existen aún — los componentes usan mock data como fallback
+- El catálogo ProductCatalog.tsx está creado pero no integrado en ninguna página aún (puede añadirse al dashboard ecommerce)
+- El error de build en ClinicNotifications.tsx es pre-existente y no fue introducido por este agente
+
+## Estado: LISTO_PARA_QA

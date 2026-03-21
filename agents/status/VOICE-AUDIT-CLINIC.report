@@ -1,0 +1,48 @@
+PLANTILLA: CLINIC
+VOZ: NO IMPLEMENTADA — no existe src/lib/elevenlabs.ts ni src/lib/voice-prompts.ts. El motor de decisiones SÍ existe.
+INTENCIÓN: detecta bien (urgencia, revisión, limpieza, tratamiento) con keywords
+DATOS: recoge parcialmente — recoge patient_name, consult_type, is_urgent, urgency_keywords, reason, collected_data. Le falta: teléfono del paciente como campo obligatorio en el motor
+EVENTOS: diseñados para tiempo real (Supabase postgres_changes) — pero SIN conexión a ElevenLabs
+URGENCIAS: DETECTA correctamente — keywords: 'dolor fuerte', 'infección', 'sangrado', 'crítico', 'emergencia', etc.
+AISLAMIENTO: OK — usa tipos propios de @/types/clinic, no mezcla con otros
+
+SIMULACIÓN 1: "Buenas, quiero pedir cita con el médico para una revisión"
+  - ¿Recoge nombre? SÍ (campo patient_name en ConsultationEvent)
+  - ¿Recoge tipo consulta? SÍ — classifyConsult() detecta 'revisión' → consult_type: 'revision'
+  - ¿Verifica disponibilidad? SÍ — makeClinicDecision() recibe availableSlots[]
+  - ¿Confirma o sugiere alternativa? SÍ — devuelve 'confirmar_cita' o 'sugerir_alternativa'
+
+SIMULACIÓN 2: "Tengo un dolor muy fuerte en el pecho desde esta mañana"
+  - ¿Detecta urgencia? SÍ — detectUrgency() encuentra 'dolor fuerte'
+  - ¿NO confirma automáticamente? CORRECTO — makeClinicDecision() devuelve 'escalar_urgencia' inmediatamente
+  - ¿Escala? SÍ — el ClinicCallPanel muestra banner "URGENCIA DETECTADA" con animación pulse
+
+ANÁLISIS DEL MOTOR (clinic-engine.ts):
+  - detectUrgency(): 10 keywords de urgencia — BIEN
+  - classifyConsult(): 4 tipos + 'otro' — BIEN
+  - getConsultDuration(): duraciones realistas (20-60 min) — BIEN
+  - makeClinicDecision(): árbol lógico correcto (urgencia → escalar, sin datos → pending, slots → confirmar/sugerir)
+
+ANÁLISIS DEL PANEL (ClinicCallPanel.tsx):
+  - Muestra estados en tiempo real (incoming, listening, processing, speaking, collecting_data)
+  - Banner de urgencia con animación — BIEN
+  - Muestra datos recopilados en grid — BIEN
+  - Muestra decisión con colores diferenciados — BIEN
+  - Usa datos mock cuando no hay datos reales — BIEN
+
+PROBLEMA DETECTADO EN MOTOR:
+  ⚠️ Los ConsultType keywords incluyen términos DENTALES: 'empaste', 'endodoncia', 'extracción', 'corona', 'implante', 'ortodoncia'
+  Pero el prompt de voz en ELEVENLABS.md dice "clínica médica general", no dental.
+  INCONSISTENCIA: El motor está configurado como clínica DENTAL, no médica general.
+
+ERRORES CRÍTICOS:
+  1. [CRÍTICO] No existe integración ElevenLabs — no hay voz real — BLOQUEANTE
+  2. [CRÍTICO] El prompt de voz especificado NO menciona 112 como número de emergencia
+     → Dice "NO des consejos médicos. Ante urgencia → 112" en ELEVENLABS.md, pero el motor NO genera este mensaje
+  3. [CRÍTICO] Inconsistencia dental vs. médica general en keywords de tratamiento
+
+ERRORES MEDIOS:
+  1. No hay campo de teléfono como campo obligatorio en el flujo de recolección de datos
+  2. El motor no tiene lógica para derivar a 112 — solo escala internamente
+
+VEREDICTO: NO APTO — Motor de decisiones robusto pero SIN integración de voz ElevenLabs. Inconsistencia dental/médica. El flujo de urgencia escala internamente pero no instruye al paciente sobre 112.

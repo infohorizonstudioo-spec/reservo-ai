@@ -1,0 +1,46 @@
+PLANTILLA: ECOMMERCE
+VOZ: NO IMPLEMENTADA — no existe integración ElevenLabs. Motor de decisiones SÍ existe.
+INTENCIÓN: detecta bien — 5 intenciones: compra_directa, duda_producto, estado_pedido, devolucion, recomendacion
+DATOS: recoge completo — client_name, client_phone, product_interest, quantity, shipping_address, order_ref, collected_data
+EVENTOS: diseñados para tiempo real (Supabase postgres_changes en order_events) — pero SIN conexión a ElevenLabs
+URGENCIAS: N/A (no aplica urgencias en ecommerce, pero devoluciones se escalan)
+AISLAMIENTO: OK — usa tipos propios de @/types/ecommerce
+
+SIMULACIÓN 1: "Quiero comprar 2 unidades del modelo X"
+  - ¿Verifica stock antes de confirmar? SÍ — checkStock(product, quantity) verifica product.stock >= quantity
+  - ¿Recoge dirección de envío? SÍ — campo shipping_address en OrderEvent, visible en panel
+  - ¿Detecta producto? SÍ — extractProductInfo() busca por nombre y SKU en catálogo
+  - ¿Detecta cantidad? SÍ — regex /(\d+)\s*(?:unidades?|piezas?|uds?)/i
+  - makeOrderDecision() devuelve 'confirmar_pedido' si tiene nombre + producto + stock OK
+
+SIMULACIÓN 2: "Quiero el modelo Y" (sin stock)
+  - ¿Informa que no hay stock? SÍ — checkStock() devuelve false → decision = 'sugerir_alternativa'
+  - ¿Sugiere alternativa? SÍ — suggestAlternative() busca productos de misma categoría con stock, ordenados por precio más cercano
+  - ¿NO confirma venta sin stock? CORRECTO — makeOrderDecision() devuelve 'sugerir_alternativa' si !stockAvailable
+
+ANÁLISIS DEL MOTOR (ecommerce-engine.ts):
+  - detectOrderIntent(): 5 intenciones con keywords amplias — BIEN
+  - extractProductInfo(): match por nombre y SKU con extracción de cantidad — BIEN
+  - checkStock(): verificación simple pero correcta — BIEN
+  - suggestAlternative(): busca misma categoría, activo, con stock, precio más cercano — BIEN
+  - makeOrderDecision(): lógica correcta (sin datos → pending, devolución → escalar, sin stock → sugerir, ok → confirmar)
+
+ANÁLISIS DEL PANEL (OrderCallPanel.tsx):
+  - Muestra estados en tiempo real — BIEN
+  - Grid de datos capturados completo — BIEN
+  - Badge de stock (EN STOCK / SIN STOCK) — BIEN
+  - Pedido estructurado visual (producto, cantidad, dirección) — BIEN
+  - Botones de acción (confirmar pedido, sugerir alternativa) — BIEN
+  - Decisiones con colores diferenciados — BIEN
+
+ERRORES CRÍTICOS:
+  1. [CRÍTICO] No existe integración ElevenLabs — no hay voz real — BLOQUEANTE
+  2. [CRÍTICO] Tenant.type en src/types/index.ts NO incluye 'ecommerce' — solo tiene 'restaurant'|'clinic'|'veterinary'|'realestate'|'advisory'|'other'. Un tenant de ecommerce NO puede ser tipado correctamente.
+
+ERRORES MEDIOS:
+  1. El stock badge en el panel infiere hasStock de la decisión (ev.decision !== 'sugerir_alternativa') en vez de verificar stock real — podría ser impreciso
+  2. No hay prompt de voz para ecommerce en ELEVENLABS.md (solo se documenta restaurant, clinic, veterinary, physio, psychology, realestate — falta ecommerce)
+  3. extractProductInfo() solo encuentra productos si el nombre exacto está en el texto — no tolera variaciones o errores tipográficos
+  4. No hay flujo para confirmar dirección de envío completa (calle, número, CP, ciudad)
+
+VEREDICTO: NO APTO — Motor de decisiones muy completo con verificación de stock y sugerencia de alternativas. SIN integración de voz ElevenLabs. Tipo de Tenant no incluye 'ecommerce'. Además, falta prompt de voz específico en la especificación ELEVENLABS.md.

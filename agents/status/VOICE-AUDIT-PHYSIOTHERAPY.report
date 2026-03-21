@@ -1,0 +1,43 @@
+PLANTILLA: PHYSIOTHERAPY
+VOZ: NO IMPLEMENTADA — no existe integración ElevenLabs. Motor de decisiones SÍ existe.
+INTENCIÓN: detecta bien — 4 tipos: primera_visita, tratamiento, seguimiento, rehabilitacion
+DATOS: recoge bien — body_area, consult_type, is_recent_injury, is_new_patient, problem_description, session_number
+EVENTOS: diseñados para tiempo real (Supabase postgres_changes en physio_consultations) — pero SIN conexión a ElevenLabs
+URGENCIAS: NO DETECTA — no existe sistema de urgencias en fisioterapia (pero detecta lesión reciente)
+AISLAMIENTO: OK — usa tipos propios de @/types/physiotherapy
+
+SIMULACIÓN 1: "Me duele mucho la espalda baja, es una lesión de hace 3 días"
+  - ¿Detecta zona lumbar? SÍ — detectBodyArea() detecta 'espalda baja' → 'lumbar' (también mapea 'espalda' genérico a lumbar)
+  - ¿Detecta lesión reciente? SÍ — isRecentInjury() detecta 'hace 3 días' en RECENT_INJURY_KEYWORDS
+  - ¿Clasifica correctamente? SÍ — classifyPhysioConsult() clasifica como 'tratamiento' (si no es paciente nuevo)
+
+SIMULACIÓN 2: "Vengo de seguimiento de mi rodilla"
+  - ¿Detecta seguimiento? SÍ — classifyPhysioConsult() detecta 'seguimiento' → PhysioConsultType 'seguimiento'
+  - ¿Asigna duración correcta (20 min)? SÍ — getPhysioDuration('seguimiento') = 20 minutos ✓
+
+ANÁLISIS DEL MOTOR (physio-engine.ts):
+  - detectBodyArea(): 7 áreas con sinónimos amplios (cervical, lumbar, hombro, rodilla, tobillo, cadera, otro) — BIEN
+  - classifyPhysioConsult(): prioriza is_new_patient → primera_visita — BIEN
+  - getPhysioDuration(): duraciones realistas (primera_visita=60, tratamiento=30, seguimiento=20, rehabilitacion=45) — BIEN
+  - isRecentInjury(): 13 keywords temporales — BIEN
+  - Labels y colores por área corporal — BIEN
+
+ANÁLISIS DEL PANEL (PhysioCallPanel.tsx):
+  - Muestra estados en tiempo real — BIEN
+  - Badge de área corporal con color diferenciado — BIEN
+  - Badge de "LESION RECIENTE" — BIEN
+  - Badge de paciente nuevo — BIEN
+  - Número de sesión para recurrentes — BIEN
+  - Decisiones con colores — BIEN
+  - Recalcula bodyArea/consultType/recentInjury en el panel si no viene del evento — BIEN (redundancia útil)
+
+ERRORES CRÍTICOS:
+  1. [CRÍTICO] No existe integración ElevenLabs — no hay voz real — BLOQUEANTE
+  2. [CRÍTICO] Tenant.type en src/types/index.ts NO incluye 'physiotherapy' — solo tiene 'restaurant'|'clinic'|'veterinary'|'realestate'|'advisory'|'other'. Un tenant de fisioterapia NO puede ser tipado correctamente.
+
+ERRORES MEDIOS:
+  1. No hay detección de urgencia en fisioterapia (ej: "me he caído y no puedo moverme" debería escalar)
+  2. No hay campo de teléfono como dato obligatorio en el flujo de recolección
+  3. El prompt de voz en ELEVENLABS.md dice "NO des diagnósticos ni consejos clínicos" pero no hay enforcement en el motor
+
+VEREDICTO: NO APTO — Motor de decisiones sólido con buena detección de zona corporal y tipo de consulta. SIN integración de voz ElevenLabs. Tipo de Tenant no incluye 'physiotherapy' (fallo de tipado).

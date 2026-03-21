@@ -1,0 +1,9 @@
+SEGURIDAD: OK — Todas las queries incluyen tenant_id. CitaModal.tsx línea 77 inserta con tenant_id: tenantId. AgendaClinica.tsx línea 128 y 137 filtran/insertan con tenant_id. El tenant viene de props (tenantId).
+AISLAMIENTO: OK — Los componentes solo se renderizan cuando tenantType === 'clinic'. No importan de otras verticales.
+MEMORY LEAKS: OK — Sin suscripciones Supabase channel propias (usan mock o las suscripciones están en páginas padre).
+FUNCIONAL: OK — AgendaClinica tiene slots semanales 08:00-20:00, colores por tipo de consulta, modal nueva cita. ClinicCallPanel tiene estados animados. ConsultTrace muestra trazabilidad. PacientesClinica lista pacientes.
+TYPESCRIPT: BLOQUEADO — 2 errores en ClinicNotifications.tsx (líneas 30, 45): property 'type' inferido como string en vez del union type "consulta"|"urgencia"|"cita_confirmada". El objeto literal del map no satisface ClinicNotification porque type es string genérico.
+BUILD: BLOQUEADO — ClinicNotifications.tsx es el ÚNICO error que bloquea el build de todo el proyecto.
+UX: OK — Texto en español, diseño coherente con dark theme, badges de urgencia en rojo.
+ELEVENLABS: NO IMPLEMENTADO — Motor existe (clinic-engine.ts) pero sin integración ElevenLabs. FALTA: aviso de derivación a 112 en urgencias.
+VEREDICTO: BLOQUEADO — 2 errores TypeScript en ClinicNotifications.tsx bloquean el build del proyecto completo. Fix: añadir "as const" o type assertion al objeto literal del map. Prioridad ALTA porque bloquea a TODAS las verticales.

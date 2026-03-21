@@ -1,0 +1,9 @@
+SEGURIDAD: OK — Todas las queries Supabase en páginas de restaurante (reservas, pedidos, mesas, dashboard, llamadas) incluyen .eq('tenant_id', ...). Los inserts incluyen tenant_id. El tenant viene de getDemoTenant().
+AISLAMIENTO: OK — Las páginas del dashboard son compartidas pero el restaurante es el tipo por defecto; no importa componentes de otras verticales.
+MEMORY LEAKS: OK — Todas las suscripciones Supabase channel tienen cleanup con supabase.removeChannel(ch) en reservas, pedidos, mesas, dashboard.
+FUNCIONAL: BUGS — El agente restaurante no creó componentes propios (sin restaurant-engine.ts, sin restaurant-memory.ts, sin RestaurantCallPanel.tsx). La lógica está inline en las páginas del dashboard. El .done solo dice "LISTO" sin detalles de handoff.
+TYPESCRIPT: OK — 0 errores TS en archivos de restaurante.
+BUILD: OK — Los archivos de restaurante compilan sin errores.
+UX: OK — Texto en español, estilo visual coherente con dark theme, badges legibles.
+ELEVENLABS: NO IMPLEMENTADO — No existe motor de voz para restaurante.
+VEREDICTO: APROBADO_CON_CONDICIONES — Falta restaurant-engine.ts, restaurant-memory.ts y RestaurantCallPanel.tsx. El HANDOFF (.done) no cumple el formato requerido. Funcional básico de reservas/pedidos/mesas opera correctamente.

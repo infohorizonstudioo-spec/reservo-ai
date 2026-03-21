@@ -1,0 +1,45 @@
+PLANTILLA: REALESTATE
+VOZ: NO IMPLEMENTADA — no existe integración ElevenLabs. Motor de decisiones SÍ existe.
+INTENCIÓN: detecta bien — 5 intenciones: busqueda_vivienda, solicitud_visita, info_propiedad, venta_propiedad, consulta_general
+DATOS: recoge completo — operación, tipo propiedad, zona, presupuesto, nombre, teléfono
+EVENTOS: diseñados para tiempo real (Supabase postgres_changes en lead_events) — pero SIN conexión a ElevenLabs
+URGENCIAS: N/A (no aplica urgencias en inmobiliaria)
+AISLAMIENTO: OK — usa tipos propios de @/types/realestate, no mezcla con otros
+
+SIMULACIÓN 1: "Hola, busco un piso de 2 habitaciones en el centro, presupuesto de 200.000€"
+  - ¿Recoge operación? SÍ — detectOperation() detecta keywords de compra/alquiler/venta. Aquí 'busco' dispara busqueda_vivienda pero NO detecta operación explícita (falta 'comprar'). ⚠️ Si no dice "comprar" no sabe si es compra o alquiler.
+  - ¿Recoge tipo propiedad? SÍ — detectPropertyType() detecta 'piso' correctamente
+  - ¿Recoge zona? SÍ — extractZone() con regex /(?:en|zona|barrio|cerca de|por)\s+(..)/ → detectaría "centro"
+  - ¿Recoge presupuesto? SÍ — extractBudget() detecta '200.000€' → 200000
+  - ¿Crea lead estructurado? SÍ — makeLeadDecision() devuelve 'crear_lead' si tiene nombre + operación
+
+SIMULACIÓN 2: "Me interesa el piso de la calle Mayor, quiero visitarlo el viernes"
+  - ¿Detecta solicitud de visita? SÍ — detectLeadIntent() detecta 'visitar' → 'solicitud_visita'
+  - ¿Recoge disponibilidad? PARCIAL — el campo 'availability' existe en LeadEvent pero no hay parsing de "viernes"
+  - ¿Crea evento de visita? SÍ — makeLeadDecision() devuelve 'crear_visita' si intent='solicitud_visita' + hasAvailability
+
+ANÁLISIS DEL MOTOR (realestate-engine.ts):
+  - detectLeadIntent(): 5 categorías con keywords amplias — BIEN
+  - detectOperation(): 3 tipos (compra/alquiler/venta) — BIEN
+  - detectPropertyType(): 6 tipos con sinónimos completos — BIEN
+  - extractBudget(): regex para €, euros, mil, k — BIEN
+  - extractZone(): regex con prefijos (en, zona, barrio, cerca de, por) — BIEN
+  - makeLeadDecision(): lógica correcta (sin datos → pending, visita → crear_visita, venta → escalar, otro → crear_lead)
+  - calculateDaysSinceContact(): utilidad para seguimiento — BIEN
+
+ANÁLISIS DEL PANEL (LeadCallPanel.tsx):
+  - Muestra estados en tiempo real — BIEN
+  - Grid de datos capturados (cliente, operación, tipo, zona, presupuesto, ref) — BIEN
+  - Lead estructurado visual — BIEN
+  - Decisiones con colores y botones de acción — BIEN
+  - Datos mock para demo — BIEN
+
+ERRORES CRÍTICOS:
+  1. [CRÍTICO] No existe integración ElevenLabs — no hay voz real — BLOQUEANTE
+
+ERRORES MEDIOS:
+  1. Si el usuario dice "busco" pero no "comprar/alquilar", la operación queda undefined → makeLeadDecision devuelve 'pending' porque !hasOperation. Se pierde un lead válido que claramente quiere comprar.
+  2. No hay parsing de fechas relativas ("viernes", "mañana") para availability
+  3. extractZone() puede capturar falsos positivos con el regex genérico (ej: "en general estoy interesado" → zona: "general estoy interesado")
+
+VEREDICTO: NO APTO — Motor de decisiones muy robusto y completo, pero SIN integración de voz ElevenLabs. El motor es el más maduro de todas las verticales junto con ecommerce.

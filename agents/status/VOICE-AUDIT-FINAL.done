@@ -1,0 +1,120 @@
+VEREDICTO GLOBAL: NO APTO
+PLANTILLAS NO APTAS: TODAS (restaurant, clinic, veterinary, realestate, physiotherapy, psychology, ecommerce)
+
+============================================================
+HALLAZGO PRINCIPAL: ELEVENLABS NO ESTÁ IMPLEMENTADO
+============================================================
+
+No existe NINGÚN archivo de integración con ElevenLabs:
+  - src/lib/elevenlabs.ts → NO EXISTE
+  - src/lib/voice-prompts.ts → NO EXISTE
+  - src/app/api/voice/webhook/route.ts → NO EXISTE
+  - src/app/api/voice/start/route.ts → NO EXISTE
+  - src/types/voice.ts → NO EXISTE
+  - tests/voice/ → NO EXISTE
+
+Toda la especificación está documentada en agents/ELEVENLABS.md pero con 0% de implementación.
+
+============================================================
+ESTADO POR PLANTILLA
+============================================================
+
+RESTAURANT:
+  Motor: NO EXISTE | Panel: NO EXISTE | Memoria: NO EXISTE
+  Tipos: SÍ (Reservation, Order, Call en index.ts)
+  → Necesita: restaurant-engine.ts, restaurant-memory.ts, RestaurantCallPanel.tsx
+
+CLINIC:
+  Motor: SÍ (clinic-engine.ts) | Panel: SÍ (ClinicCallPanel.tsx) | Memoria: SÍ (clinic-memory.ts)
+  Tipos: SÍ (clinic.ts)
+  → Necesita: integración ElevenLabs, corregir inconsistencia dental/médica, añadir derivación a 112
+
+VETERINARY:
+  Motor: NO EXISTE | Panel: NO EXISTE | Memoria: NO EXISTE
+  Tipos: SÍ (veterinary.ts)
+  → Necesita: veterinary-engine.ts, veterinary-memory.ts, VetCallPanel.tsx
+
+REALESTATE:
+  Motor: SÍ (realestate-engine.ts) | Panel: SÍ (LeadCallPanel.tsx) | Memoria: SÍ (realestate-memory.ts)
+  Tipos: SÍ (realestate.ts)
+  → Necesita: integración ElevenLabs, mejorar detección de operación implícita
+
+PHYSIOTHERAPY:
+  Motor: SÍ (physio-engine.ts) | Panel: SÍ (PhysioCallPanel.tsx) | Memoria: SÍ (physio-memory.ts)
+  Tipos: SÍ (physiotherapy.ts)
+  → Necesita: integración ElevenLabs, añadir 'physiotherapy' a Tenant.type
+
+PSYCHOLOGY:
+  Motor: NO EXISTE | Panel: NO EXISTE | Memoria: NO EXISTE
+  Tipos: NO EXISTE
+  → Necesita: TODO (types, engine, memory, panel, detección crisis 024)
+
+ECOMMERCE:
+  Motor: SÍ (ecommerce-engine.ts) | Panel: SÍ (OrderCallPanel.tsx) | Memoria: SÍ (ecommerce-memory.ts)
+  Tipos: SÍ (ecommerce.ts)
+  → Necesita: integración ElevenLabs, añadir 'ecommerce' a Tenant.type, prompt de voz en spec
+
+============================================================
+CORRECCIONES NECESARIAS (ORDENADAS POR PRIORIDAD)
+============================================================
+
+PRIORIDAD 1 — BLOQUEANTES GLOBALES:
+  1. Implementar src/lib/elevenlabs.ts (integración API)
+  2. Implementar src/lib/voice-prompts.ts (prompts por vertical)
+  3. Implementar src/app/api/voice/webhook/route.ts (eventos de conversación)
+  4. Implementar src/app/api/voice/start/route.ts (iniciar llamada)
+  5. Crear src/types/voice.ts (tipos de voz)
+  6. Configurar ELEVENLABS_API_KEY en .env.local
+
+PRIORIDAD 2 — BLOQUEANTES POR PLANTILLA:
+  7. Crear psychology-engine.ts con detección de crisis y referencia al 024
+  8. Crear src/types/psychology.ts
+  9. Crear PsychologyCallPanel.tsx con controles de confidencialidad
+  10. Crear restaurant-engine.ts con extracción de reservas y pedidos
+  11. Crear RestaurantCallPanel.tsx
+  12. Crear veterinary-engine.ts con detección de especie/mascota y urgencias
+  13. Crear VetCallPanel.tsx
+
+PRIORIDAD 3 — TIPADO:
+  14. Añadir 'physiotherapy' | 'psychology' | 'ecommerce' al tipo Tenant.type en src/types/index.ts
+      (REQUIERE APROBACIÓN DEL ARQUITECTO según CLAUDE.md)
+
+PRIORIDAD 4 — MEJORAS DE MOTOR:
+  15. clinic-engine.ts: decidir si es dental o médica general y ajustar keywords
+  16. clinic-engine.ts: añadir instrucción de derivación a 112 en urgencias
+  17. realestate-engine.ts: mejorar detección de operación implícita ("busco piso" → compra)
+  18. realestate-engine.ts: mejorar extractZone() para evitar falsos positivos
+  19. ecommerce-engine.ts: añadir prompt de voz en agents/ELEVENLABS.md
+  20. physio-engine.ts: añadir detección de urgencias ("no puedo moverme")
+  21. Todos los motores: añadir teléfono como campo obligatorio en recolección
+
+PRIORIDAD 5 — TESTS:
+  22. Crear tests/voice/voice-prompts.test.ts
+  23. Crear tests/voice/webhook.test.ts
+  24. Crear tests unitarios para cada engine
+
+============================================================
+VALIDACIONES DE VOZ (GLOBAL) — TODAS NO EVALUABLES
+============================================================
+- ¿Habla en español natural? → NO EVALUABLE (sin ElevenLabs)
+- ¿No suena robótico? → NO EVALUABLE
+- ¿Velocidad adecuada? → NO EVALUABLE
+- ¿Maneja silencios? → NO EVALUABLE
+- ¿Interrumpe naturalmente? → NO EVALUABLE
+
+============================================================
+RESUMEN EJECUTIVO
+============================================================
+
+El proyecto tiene un sistema de motores de decisión sólido para 4 de 7 verticales
+(clinic, realestate, physiotherapy, ecommerce), con tipos bien definidos, call panels
+en tiempo real via Supabase, y sistemas de memoria por tenant.
+
+SIN EMBARGO, el componente central de voz — la integración con ElevenLabs — tiene
+0% de implementación. Todo el stack de voz (API client, prompts, webhooks, endpoints)
+está únicamente documentado en agents/ELEVENLABS.md.
+
+Las 3 verticales sin motor (restaurant, veterinary, psychology) necesitan desarrollo
+completo. Psychology es la más crítica por el riesgo de seguridad del paciente.
+
+NOTA: Este audit fue realizado el 2026-03-21 sobre la rama feature/restaurante.

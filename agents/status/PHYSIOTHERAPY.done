@@ -1,0 +1,36 @@
+# HANDOFF: PHYSIOTHERAPY
+## Qué hice
+Sistema de recepción para centros de fisioterapia:
+- Tipos TypeScript para consultas, citas, pacientes y zonas corporales
+- Motor de clasificación: detecta zona corporal, tipo de consulta, duración, lesión reciente
+- Panel de llamadas en tiempo real con badges de zona corporal (colores), lesión reciente, estado animado
+- Agenda de día con slots de 30min, duración visual correcta, panel lateral con acciones
+- Vista de pacientes con progreso de sesiones (barra), filtros, zona corporal
+- Sistema de memoria por tenant (lesiones frecuentes, duraciones, ratios de recuperación)
+- Mock data realista cuando las tablas Supabase no existen
+
+## Archivos modificados
+- src/app/(dashboard)/agenda/page.tsx — añadido caso physiotherapy
+- src/app/(dashboard)/clientes/page.tsx — añadido caso physiotherapy
+- src/app/(dashboard)/llamadas/page.tsx — añadido panel PhysioCallPanel
+
+## Archivos nuevos
+- src/types/physiotherapy.ts
+- src/lib/physio-engine.ts
+- src/lib/physio-memory.ts
+- src/components/physio/PhysioCallPanel.tsx
+- src/components/physio/AgendaFisio.tsx
+- src/components/physio/PacientesFisio.tsx
+
+## Tests que corren
+- TypeScript compila sin errores en todos los archivos physio
+- Build falla por error preexistente en ClinicNotifications.tsx (territorio del agente clínica)
+
+## Advertencias para QA
+- El tipo 'physiotherapy' no está en el union type de Tenant en src/types/index.ts (requiere aprobación del arquitecto)
+- El tipo 'physiotherapy' no está en useTenantType() en tenant-context.ts (archivo protegido)
+- En agenda y clientes se usa rawTenantType desde getDemoTenant() para detectar physiotherapy
+- En llamadas se usa tenantType directamente del tenant (ya funcionaba así)
+- Tablas Supabase necesarias: physio_appointments, physio_patients, physio_consultations (no creadas, usa mock)
+
+## Estado: LISTO_PARA_QA

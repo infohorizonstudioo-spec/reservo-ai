@@ -1,0 +1,102 @@
+VEREDICTO GLOBAL: BLOQUEADO
+
+============================================================
+BLOQUEANTES (deben corregirse antes del deploy)
+============================================================
+
+1. ClinicNotifications.tsx (líneas 30, 45) — ERROR TS que BLOQUEA el build completo.
+   Causa: property 'type' inferido como string genérico en vez del union "consulta"|"urgencia"|"cita_confirmada".
+   Fix: añadir `as const` o type assertion al literal del map.
+   Responsable: Agente Clínica.
+
+2. LeadsKanban.tsx — 6 errores TS por casing incorrecto en mock data.
+   Causa: usa "Piso"/"Local"/"Casa" (mayúscula) pero PropertyType requiere lowercase.
+   Línea 39: usa "telefono" como source pero el tipo acepta "llamada"|"web"|"manual"|"portal"|"referido".
+   Fix: cambiar casing y "telefono"→"llamada".
+   Responsable: Agente Realestate.
+
+3. LeadModal.tsx (línea 37) — 1 error TS: string no asignable a PropertyType.
+   Fix: tipar correctamente el estado inicial.
+   Responsable: Agente Realestate.
+
+TOTAL ERRORES TS: 9 (2 clínica + 7 realestate)
+TOTAL ERRORES BUILD: 1 archivo bloquea (ClinicNotifications.tsx)
+
+============================================================
+RESUMEN DE SEGURIDAD (5 agentes revisaron en paralelo)
+============================================================
+- Multi-tenant: OK — TODAS las queries Supabase (34 verificadas) filtran por tenant_id
+  Incluye SELECT, INSERT, UPDATE y suscripciones REALTIME con filter tenant_id
+  Fuentes de tenant_id: getDemoTenant() o prop tenantId (nunca de URL sin validar)
+- Aislamiento: OK — Cada vertical se activa solo con su tipo via useTenantType()
+  5 páginas compartidas verificadas (clientes, agenda, llamadas, dashboard, pedidos)
+  0 imports cross-vertical encontrados
+- Memory leaks: OK — 11 suscripciones Supabase channel verificadas, TODAS con cleanup
+  (supabase.removeChannel en el return del useEffect)
+- Archivos protegidos: OK — Ningún agente modificó archivos del núcleo protegido
+  (supabase.ts, types/index.ts, layout.tsx, globals.css, next.config.js, tsconfig.json, package.json)
+
+============================================================
+HALLAZGOS UX ADICIONALES
+============================================================
+
+ALTA PRIORIDAD:
+- Sidebar.tsx línea 35: texto hardcodeado "La Bahía · En vivo" se muestra en TODAS las verticales.
+  Es branding de restaurante pero el Sidebar es compartido. Debe usar nombre dinámico del tenant.
+
+MEDIA PRIORIDAD:
+- LeadModal.tsx: NO cierra con tecla Escape (falta useEffect con keydown listener).
+  La modal personalizada no usa el componente ui/Modal.tsx que sí tiene handler Escape.
+- LeadsKanban.tsx: Dropdown de estado no cierra con Escape ni click fuera.
+- VisitasView.tsx (NewVisitModal): NO cierra con Escape (mismo patrón que LeadModal).
+
+BAJA PRIORIDAD:
+- mesas/page.tsx: Panel lateral no cierra con Escape (es sidebar, no modal overlay).
+- VisitasView.tsx: Validación de formulario incompleta (solo valida client_name, no date/time).
+
+============================================================
+PENDIENTES (pueden ir en el siguiente ciclo)
+============================================================
+
+ALTA PRIORIDAD:
+- Añadir 'physiotherapy' al union type de Tenant en src/types/index.ts (requiere arquitecto)
+- Crear tablas Supabase para todas las verticales nuevas (clinic, realestate, ecommerce, physio)
+- Integrar ProductCatalog en alguna página del dashboard ecommerce
+
+MEDIA PRIORIDAD:
+- Implementar restaurant-engine.ts, restaurant-memory.ts, RestaurantCallPanel.tsx
+- Los HANDOFF (.done) de Restaurant y Clinic no cumplen el formato requerido (falta estructura completa)
+
+BAJA PRIORIDAD:
+- Integración ElevenLabs no implementada (0% — documentada pero sin código)
+  No existen: elevenlabs.ts, voice-prompts.ts, webhook/route.ts, voice/start/route.ts, voice.ts
+  ELEVENLABS_API_KEY no está en .env.local
+- Verticales sin motor: restaurant, veterinary, psychology
+- clinic-engine.ts: añadir derivación a 112 en urgencias
+- realestate-engine.ts: mejorar detección de operación implícita
+
+============================================================
+VEREDICTOS POR VERTICAL
+============================================================
+RESTAURANT:    APROBADO_CON_CONDICIONES (funcional pero incompleto)
+REALESTATE:    BLOQUEADO (8 errores TypeScript + modales sin Escape)
+CLINIC:        BLOQUEADO (2 errores TypeScript — bloquea build global)
+ECOMMERCE:     APROBADO_CON_CONDICIONES (sin errores propios)
+PHYSIOTHERAPY: APROBADO_CON_CONDICIONES (sin errores propios)
+
+============================================================
+ACCIÓN REQUERIDA
+============================================================
+1. Corregir los 9 errores TypeScript (3 archivos) para desbloquear el build.
+2. Cambiar "La Bahía" en Sidebar.tsx por nombre dinámico del tenant.
+3. Añadir handlers Escape a LeadModal.tsx y NewVisitModal en VisitasView.tsx.
+Tras estas correcciones, el proyecto puede desplegarse con las condiciones listadas.
+
+============================================================
+METODOLOGÍA
+============================================================
+Revisión ejecutada el 2026-03-21 sobre rama feature/restaurante.
+5 agentes QA en paralelo: seguridad multi-tenant, aislamiento, memory leaks + UX,
+revisión funcional, y ElevenLabs.
+34 queries Supabase auditadas, 11 suscripciones channel verificadas,
+~40 archivos fuente revisados en 8 bloques de QA.

@@ -4,6 +4,7 @@ import { supabase, getDemoTenant } from '@/lib/supabase'
 import { Order, Tenant } from '@/types'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
+import EcomOrdersPanel from '@/components/ecommerce/EcomOrdersPanel'
 
 type OrderStatus = Order['status']
 const COLS: { key: OrderStatus; label: string; next?: OrderStatus; color: string }[] = [
@@ -48,6 +49,7 @@ export default function PedidosPage() {
     getDemoTenant().then(t => {
       if (!t) return setLoading(false)
       setTenant(t)
+      if (t.type === 'ecommerce') return setLoading(false)
       load(t.id)
       const ch = supabase.channel('pedidos-rt')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load(t.id))
@@ -56,6 +58,10 @@ export default function PedidosPage() {
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  if (tenant?.type === 'ecommerce') {
+    return <EcomOrdersPanel tenantId={tenant.id} />
+  }
 
   async function advance(id: string, next: OrderStatus) {
     if (!tenant) return

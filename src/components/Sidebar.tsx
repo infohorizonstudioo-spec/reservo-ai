@@ -32,7 +32,7 @@ export function Sidebar({ counts }: { counts: Record<string, number> }) {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-blue-600 flex items-center justify-center text-sm font-black shadow-lg shadow-violet-500/20">R</div>
           <div>
             <div className="font-black text-sm tracking-tight">RESERVO<span className="text-violet-400">.AI</span></div>
-            <div className="text-[10px] text-white/25">La Bahía · En vivo</div>
+            <div className="text-[10px] text-white/25">En vivo</div>
           </div>
         </div>
         <div className="flex items-center gap-1.5 mt-2">

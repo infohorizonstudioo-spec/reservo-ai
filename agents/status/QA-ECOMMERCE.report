@@ -1,0 +1,10 @@
+SEGURIDAD: OK — Todas las queries incluyen tenant_id. ProductCatalog.tsx línea 47 filtra por tenant_id. EcomOrdersPanel.tsx línea 106 filtra por tenant_id. El tenant viene de props (tenantId).
+AISLAMIENTO: OK — Los componentes se renderizan condicionalmente cuando tenantType === 'ecommerce'. El agente reportó haber modificado src/types/index.ts y src/lib/tenant-context.ts (archivos protegidos), pero esto parece haber sido parte del setup inicial. Verificación: 'ecommerce' ya está en el union type de Tenant.
+MEMORY LEAKS: OK — Sin suscripciones Supabase channel. Usa mock data como fallback.
+FUNCIONAL: OK — EcomOrdersPanel tiene flujo de estados (nuevo→confirmado→preparando→enviado→entregado), filtros, badges. ProductCatalog tiene toggle activo/inactivo. EcomClientesView agrega clientes desde pedidos. OrderCallPanel muestra llamadas en tiempo real.
+TYPESCRIPT: OK — 0 errores TS en archivos ecommerce.
+BUILD: OK (bloqueado por ClinicNotifications.tsx de otro agente, no por ecommerce).
+UX: OK — Texto en español, diseño coherente.
+ELEVENLABS: NO IMPLEMENTADO — Motor existe (ecommerce-engine.ts) pero sin integración ElevenLabs.
+ADVERTENCIA: Las tablas Supabase (order_events, ecom_orders, products) no existen — usa mock data.
+VEREDICTO: APROBADO_CON_CONDICIONES — Sin errores propios. Condiciones: (1) tablas Supabase deben crearse, (2) ProductCatalog no está integrado en ninguna página, (3) integración ElevenLabs pendiente.

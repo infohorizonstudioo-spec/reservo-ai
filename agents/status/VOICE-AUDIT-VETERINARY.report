@@ -1,0 +1,42 @@
+PLANTILLA: VETERINARY
+VOZ: NO IMPLEMENTADA — no existe ni motor de voz ni integración ElevenLabs
+INTENCIÓN: NO EVALUABLE — no existe veterinary-engine.ts
+DATOS: PARCIAL — existen tipos en src/types/veterinary.ts (Pet, VetAppointment, PetSpecies) pero NO hay motor que los procese
+EVENTOS: NO EVALUABLE — no hay tabla de eventos de voz veterinaria ni motor que genere eventos
+URGENCIAS: NO DETECTA — no existe motor de urgencias veterinarias
+AISLAMIENTO: OK a nivel de tipos — veterinary.ts es independiente
+
+SIMULACIÓN 1: "Hola, quiero una cita para mi perro, se llama Rocky"
+  - ¿Pregunta por mascota? NO — no hay motor
+  - ¿Recoge especie y nombre? NO — los tipos tienen pet_name, pet_species, PetSpecies ('perro'|'gato'|'conejo'|'ave'|'reptil'|'otro') pero no hay lógica de extracción
+  - ¿Detecta que es un perro? NO — no hay keywords ni NLP
+
+SIMULACIÓN 2: "Mi gato no puede respirar bien, está muy mal"
+  - ¿Detecta urgencia veterinaria? NO — no existe motor de urgencias
+  - ¿NO confirma cita normal? NO EVALUABLE
+  - ¿Escala? NO — no hay lógica de escalado
+
+ANÁLISIS:
+  - src/types/veterinary.ts existe con tipos completos:
+    - PetSpecies: 'perro'|'gato'|'conejo'|'ave'|'reptil'|'otro'
+    - VetAppointmentType: 'consulta'|'vacuna'|'revision'|'urgencia'|'cirugia'|'peluqueria'
+    - Pet interface con owner_name, owner_phone, name, species, breed, age, color
+    - VetAppointment con pet_name, pet_species, owner_name, vet_name, type, durations
+  - Componentes UI parciales: AgendaVet.tsx, CitaVetModal.tsx, MascotasView.tsx
+  - NO existe veterinary-engine.ts (motor de clasificación)
+  - NO existe veterinary-memory.ts (memoria de tenant)
+  - NO existe VetCallPanel.tsx (panel de llamadas)
+  - El prompt de voz está especificado en ELEVENLABS.md pero NO implementado
+
+ERRORES CRÍTICOS:
+  1. [CRÍTICO] No existe motor de voz veterinario — BLOQUEANTE
+  2. [CRÍTICO] No existe integración ElevenLabs — BLOQUEANTE
+  3. [CRÍTICO] No hay detección de urgencias veterinarias — BLOQUEANTE
+  4. [CRÍTICO] No hay call panel para veterinaria — BLOQUEANTE
+  5. [CRÍTICO] No hay lógica para diferenciar entre mascota y dueño en llamadas
+
+ERRORES MEDIOS:
+  1. Los tipos están bien definidos pero sin motor que los use
+  2. El Tenant.type incluye 'veterinary' pero no hay flujo de voz
+
+VEREDICTO: NO APTO — Solo existen tipos e interfaces de UI. Motor de voz, detección de urgencias y panel de llamadas completamente ausentes.

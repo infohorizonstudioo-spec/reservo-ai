@@ -1,0 +1,39 @@
+PLANTILLA: RESTAURANT
+VOZ: NO IMPLEMENTADA — no existe src/lib/elevenlabs.ts ni src/lib/voice-prompts.ts
+INTENCIÓN: NO EVALUABLE — no existe restaurant-engine.ts
+DATOS: NO EVALUABLE — no hay motor de procesamiento de llamadas para restaurante
+EVENTOS: NO EVALUABLE — la tabla 'calls' existe en src/types/index.ts (Call interface) pero no hay lógica de motor que genere eventos de voz
+URGENCIAS: N/A para restaurante
+AISLAMIENTO: NO EVALUABLE — sin código de motor propio
+
+SIMULACIÓN 1: "Hola, quiero reservar una mesa para 4 personas el sábado a las 9"
+  - ¿Recoge nombre? NO — no hay engine que extraiga datos
+  - ¿Recoge personas? NO — no hay extracción de número de comensales
+  - ¿Recoge fecha/hora? NO — no hay parsing de fecha
+  - ¿Verifica disponibilidad? NO — no hay integración con tabla de mesas/reservas
+  - ¿Confirma o sugiere alternativa? NO — no hay árbol de decisión
+
+SIMULACIÓN 2: "Quiero pedir una pizza margarita para llevar"
+  - ¿Entiende para llevar? NO — no hay detección de intent tipo 'recogida'
+  - ¿Recoge producto? NO — no hay engine
+  - ¿Recoge datos? NO
+
+ANÁLISIS:
+  - NO existe restaurant-engine.ts (motor de decisiones para restaurante)
+  - NO existe restaurant-memory.ts (memoria de tenant)
+  - NO existe CallPanel para restaurante
+  - La interfaz Call en src/types/index.ts tiene campos genéricos (intent, intent_data, reservation_id, order_id)
+    pero no hay lógica que los procese para voz
+  - Las interfaces Reservation y Order existen pero no están conectadas a ningún motor de voz
+  - El prompt de voz para restaurant está ESPECIFICADO en agents/ELEVENLABS.md pero NO IMPLEMENTADO
+
+ERRORES CRÍTICOS:
+  1. [CRÍTICO] No existe motor de voz para restaurante — BLOQUEANTE
+  2. [CRÍTICO] No existe integración ElevenLabs — BLOQUEANTE
+  3. [CRÍTICO] No hay generación de eventos de voz — BLOQUEANTE
+  4. [CRÍTICO] No hay call panel para restaurante — BLOQUEANTE
+
+ERRORES MEDIOS:
+  1. El tipo Tenant en src/types/index.ts incluye 'restaurant' pero no hay motor que lo use para voz
+
+VEREDICTO: NO APTO — Motor de voz completo no implementado. Solo existen las interfaces de datos (Reservation, Order, Call) sin lógica de procesamiento de voz.

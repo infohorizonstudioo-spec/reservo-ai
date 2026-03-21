@@ -1,0 +1,16 @@
+## Archivos creados
+- src/types/clinic.ts (tipos: CallState, ConsultType, IntentType, DecisionType, ConsultationEvent, ClinicAppointment, ClinicDoctor, ClinicMemory)
+- src/lib/clinic-engine.ts (motor de decisiones: makeClinicDecision, detectUrgency, classifyConsult, getConsultDuration, CONSULT_TYPE_LABELS, CONSULT_TYPE_COLORS)
+- src/lib/clinic-memory.ts (memoria por clínica: getClinicMemory, updateClinicMemory, getClinicInsights)
+- src/components/clinic/AgendaClinica.tsx (agenda semanal con slots 08:00-20:00, colores por tipo, modal nueva cita, panel lateral día)
+- src/components/clinic/ClinicCallPanel.tsx (panel llamadas en tiempo real, estados animados, urgencia pulsante, datos en vivo)
+- src/components/clinic/ClinicNotifications.tsx (badge notificaciones: consultas, citas confirmadas, urgencias)
+- src/components/clinic/ConsultTrace.tsx (trazabilidad: qué entendió, qué recogió, qué decidió y por qué)
+- src/components/clinic/PacientesClinica.tsx (lista pacientes derivada de citas, visitas, último tipo)
+
+## Archivos modificados
+- src/app/(dashboard)/agenda/page.tsx (condicional: tenantType === 'clinic' → AgendaClinica)
+- src/app/(dashboard)/llamadas/page.tsx (añadido ClinicCallPanel + ConsultTrace si clinic)
+- src/app/(dashboard)/clientes/page.tsx (condicional: tenantType === 'clinic' → PacientesClinica)
+
+## LISTO

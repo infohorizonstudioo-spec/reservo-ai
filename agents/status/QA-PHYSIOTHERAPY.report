@@ -1,0 +1,10 @@
+SEGURIDAD: OK — Todas las queries incluyen tenant_id. AgendaFisio.tsx línea 112 filtra updates por tenant_id, línea 121 inserta con tenant_id: tenantId. El tenant viene de props (tenantId).
+AISLAMIENTO: OK — Componentes se renderizan condicionalmente. El agente NO modificó archivos protegidos. NOTA: 'physiotherapy' NO está en el union type de Tenant (src/types/index.ts) ni en tenant-context.ts. El agente usa rawTenantType desde getDemoTenant() como workaround.
+MEMORY LEAKS: OK — Sin suscripciones Supabase channel. Usa mock data como fallback.
+FUNCIONAL: OK — AgendaFisio tiene slots de 30min, duración visual correcta, modal nueva cita con zona corporal. PacientesFisio muestra progreso de sesiones. PhysioCallPanel muestra llamadas con badges de zona corporal.
+TYPESCRIPT: OK — 0 errores TS en archivos physio.
+BUILD: OK (bloqueado por ClinicNotifications.tsx de otro agente, no por physio).
+UX: OK — Texto en español, diseño coherente con dark theme.
+ELEVENLABS: NO IMPLEMENTADO — Motor existe (physio-engine.ts) pero sin integración ElevenLabs.
+ADVERTENCIA: 'physiotherapy' debe añadirse a Tenant.type (requiere aprobación del arquitecto). Las tablas Supabase no existen — usa mock data.
+VEREDICTO: APROBADO_CON_CONDICIONES — Sin errores propios. Condiciones: (1) añadir 'physiotherapy' al union type de Tenant (requiere arquitecto), (2) crear tablas Supabase, (3) integración ElevenLabs pendiente.

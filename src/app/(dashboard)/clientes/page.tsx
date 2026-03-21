@@ -7,6 +7,8 @@ import type { Customer, Reservation } from '@/types'
 import LeadsKanban from '@/components/realestate/LeadsKanban'
 import MascotasView from '@/components/vet/MascotasView'
 import PacientesClinica from '@/components/clinic/PacientesClinica'
+import EcomClientesView from '@/components/ecommerce/EcomClientesView'
+import PacientesFisio from '@/components/physio/PacientesFisio'
 
 export default function ClientesPage() {
   const tenantType = useTenantType()
@@ -16,13 +18,15 @@ export default function ClientesPage() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [customerReservations, setCustomerReservations] = useState<Reservation[]>([])
   const [loadingHistory, setLoadingHistory] = useState(false)
+  const [rawTenantType, setRawTenantType] = useState<string>('')
 
   useEffect(() => {
     async function load() {
       const t = await getDemoTenant()
       if (!t) return
       setTenantId(t.id)
-      if (t.type === 'realestate' || t.type === 'veterinary') return
+      setRawTenantType(t.type || '')
+      if (t.type === 'realestate' || t.type === 'veterinary' || t.type === 'ecommerce' || t.type === 'physiotherapy') return
       const { data } = await supabase.from('customers').select('*').eq('tenant_id', t.id).order('visits', { ascending: false })
       setCustomers(data || [])
     }
@@ -39,6 +43,14 @@ export default function ClientesPage() {
 
   if (tenantType === 'realestate' && tenantId) {
     return <LeadsKanban tenantId={tenantId} />
+  }
+
+  if (tenantType === 'ecommerce' && tenantId) {
+    return <EcomClientesView tenantId={tenantId} />
+  }
+
+  if (rawTenantType === 'physiotherapy' && tenantId) {
+    return <PacientesFisio tenantId={tenantId} />
   }
 
   async function showHistory(customer: Customer) {
