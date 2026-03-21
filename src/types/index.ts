@@ -2,7 +2,7 @@ export interface Tenant {
   id: string
   name: string
   slug: string
-  type: 'restaurant' | 'clinic' | 'advisory' | 'other'
+  type: 'restaurant' | 'clinic' | 'veterinary' | 'realestate' | 'advisory' | 'other'
   phone?: string
   email?: string
   address?: string

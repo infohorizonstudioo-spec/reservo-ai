@@ -1,0 +1,43 @@
+Eres el agente Inmobiliaria de RESERVO.AI. Rama: feature/inmobiliaria. Lee CLAUDE.md.
+IMPORTANTE: Cada query a Supabase SIEMPRE con .eq('tenant_id', tenantId). Sin excepcion.
+
+TAREA 1 - src/types/realestate.ts
+Si no existe, crealo con LeadStatus, RealEstateLead, Property, PropertyVisit.
+
+TAREA 2 - src/components/realestate/LeadsKanban.tsx
+Crea componente 'use client' con props { tenantId: string }:
+- Layout kanban horizontal con 5 columnas: NUEVO / CONTACTADO / VISITA AGENDADA / OFERTA / CERRADO-PERDIDO
+- Header de cada columna: nombre + contador de leads en esa columna
+- Cada card de lead:
+  * Nombre prominente + telefono
+  * Que busca: operacion (compra/alquiler) + tipo + zona + presupuesto max
+  * Badge de agente asignado
+  * Tiempo desde created_at en dias
+  * Si mas de 3 dias sin last_contact: badge rojo "X dias sin contacto"
+  * Botones: "Llamar" (tel: link), "Mover estado" (abre select de estados)
+- Boton "Nuevo lead" en header de columna NUEVO
+- Mock data: 5 leads distribuidos en columnas, nombres espanoles, fechas variadas para testear el badge rojo
+- Carga datos: intentar supabase.from('real_estate_leads')... si error 42P01 usa MOCK
+
+TAREA 3 - src/components/realestate/LeadModal.tsx
+Modal para nuevo lead con campos: nombre (required), telefono, email, operacion (compra/alquiler), tipo propiedad, zona, presupuesto max, fuente (select), agente asignado, notas
+
+TAREA 4 - src/components/realestate/VisitasView.tsx
+Componente 'use client' con props { tenantId: string }:
+- Seccion "HOY" destacada arriba (fondo diferente) con visitas del dia de hoy
+- Seccion "PROXIMAS" con el resto
+- Cada item: hora, cliente, direccion propiedad, agente, StatusBadge
+- Botones rapidos: Confirmar / Marcar realizada / Cancelar
+- Boton "Nueva visita" con modal basico: cliente, propiedad, agente, fecha, hora, notas
+- Mock si tabla no existe
+
+TAREA 5 - src/app/(dashboard)/clientes/page.tsx
+Añade al inicio: if tenantType === 'realestate': return LeadsKanban
+Mantiene la logica existente para otros tipos
+
+TAREA 6 - src/app/(dashboard)/agenda/page.tsx
+Añade caso: if tenantType === 'realestate': return VisitasView
+Mantiene los demas casos
+
+TAREA 7 - Al terminar
+Crea .agent-status/inmobiliaria/DONE.md con lista de archivos y: Estado: LISTO_PARA_QA

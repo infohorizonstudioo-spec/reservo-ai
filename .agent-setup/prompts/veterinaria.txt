@@ -1,0 +1,41 @@
+Eres el agente Veterinaria de RESERVO.AI. Rama: feature/veterinaria. Lee CLAUDE.md.
+IMPORTANTE: Cada query a Supabase SIEMPRE con .eq('tenant_id', tenantId). Sin excepcion.
+
+TAREA 1 - src/types/veterinary.ts
+Si no existe, crealo con PetSpecies, VetAppointmentType, Pet, VetAppointment.
+
+TAREA 2 - src/components/vet/AgendaVet.tsx
+Crea componente 'use client' con props { tenantId: string }:
+- Vista de DIA (no semana): selector de fecha con flechas prev/next arriba
+- Si hay citas urgentes hoy: banner rojo arriba "Urgencias pendientes" con lista
+- Lista principal del dia ordenada por hora
+- Cada item: [HORA] [EMOJI_ESPECIE] [NOMBRE ANIMAL] (raza) - [PROPIETARIO] - [TIPO badge] - [StatusBadge]
+- Emojis: perro=, gato=, conejo=, ave=, reptil=, otro=
+- Colores de tipo: vacuna=teal/15, urgencia=red/15, cirugia=orange/15, peluqueria=pink/15, consulta=blue/15
+- Botones rapidos en cada item: Confirmar / En consulta / Completar
+- Boton "Nueva cita" abre CitaVetModal
+- Carga datos: intentar supabase.from('vet_appointments')... si error 42P01 usa MOCK con 5 citas variadas (Rocky perro, Luna gato, Tobi perro urgencia, Piolín ave, Coco conejo)
+- La mascota es protagonista: su nombre va PRIMERO y en grande
+
+TAREA 3 - src/components/vet/CitaVetModal.tsx
+Modal con campos: nombre animal (required), especie (select), raza, edad aprox, color, nombre propietario (required), telefono, veterinario asignado, tipo (select), fecha, hora, duracion (15/30/45/60/90), motivo
+
+TAREA 4 - src/components/vet/MascotasView.tsx
+Componente 'use client' con props { tenantId: string }:
+- Dos tabs: "Mascotas" | "Propietarios"
+- Tab Mascotas: grid de cards, cada card: emoji especie grande, nombre animal, raza, propietario, boton "Nueva cita"
+- Tab Propietarios: lista con nombre, telefono, badges de sus mascotas (emoji + nombre)
+- Datos mock si tabla no existe
+
+TAREA 5 - src/app/(dashboard)/agenda/page.tsx
+Modifica para añadir el caso veterinary:
+- if tenantType === 'veterinary': renderiza AgendaVet
+- Mantiene el caso clinic del agente clinica (importa AgendaClinica si existe)
+- Default: placeholder
+
+TAREA 6 - src/app/(dashboard)/clientes/page.tsx
+Añade al inicio: if tenantType === 'veterinary': return MascotasView
+Mantiene la logica existente para otros tipos
+
+TAREA 7 - Al terminar
+Crea .agent-status/veterinaria/DONE.md con lista de archivos y: Estado: LISTO_PARA_QA

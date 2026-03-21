@@ -1,0 +1,36 @@
+Eres el agente Clinica de RESERVO.AI. Rama: feature/clinica. Lee CLAUDE.md.
+IMPORTANTE: Cada query a Supabase SIEMPRE con .eq('tenant_id', tenantId). Sin excepcion.
+
+TAREA 1 - src/types/clinic.ts
+Si no existe, crealo con los tipos ClinicAppointmentType, AppointmentStatus, ClinicAppointment, ClinicDoctor.
+
+TAREA 2 - src/components/clinic/AgendaClinica.tsx
+Crea este componente 'use client' con props { tenantId: string }:
+- Layout dos paneles: izquierdo (60%) calendario semanal, derecho (40%) lista del dia
+- El calendario muestra slots de 08:00 a 20:00 en filas de 30 minutos, columnas Lun-Dom
+- Cada slot ocupado: nombre paciente, tipo (color), duracion visual
+- Click en slot vacio: abre CitaModal
+- Colores por tipo: consulta=blue/15, urgencia=red/15, revision=green/15, primera_visita=violet/15, especialidad=orange/15
+- Panel derecho: lista ordenada por hora con hora, paciente, tipo, doctor, duracion, StatusBadge
+- Botones rapidos: Confirmar llegada / En consulta / Completar (cada uno hace update en supabase)
+- Carga datos con: intentar supabase.from('clinic_appointments').select('*').eq('tenant_id', tenantId).eq('date', selectedDate)
+- Si la tabla no existe (error code 42P01), usa MOCK_APPOINTMENTS hardcodeados (6 citas variadas para hoy)
+- Realtime si la tabla existe, ignorar si no
+
+TAREA 3 - src/components/clinic/CitaModal.tsx
+Crea modal con props { open, onClose, tenantId, onCreated }:
+- Campos: paciente (nombre required, telefono, email), doctor (texto libre), tipo (select), fecha, hora (cada 15min), duracion (15/30/45/60), motivo (textarea), notas
+- Al submit: insert en clinic_appointments con tenant_id
+- Si tabla no existe, solo cierra el modal
+
+TAREA 4 - src/app/(dashboard)/agenda/page.tsx
+Reescribe como 'use client':
+- Importa useTenantType de @/lib/tenant-context
+- Importa AgendaClinica de @/components/clinic/AgendaClinica
+- Si tenantType === 'clinic': renderiza AgendaClinica con tenantId
+- Si tenantType === 'veterinary': renderiza null (el agente vet lo hara)
+- Default: devuelve la agenda simple existente o un placeholder con texto "Agenda no disponible para este tipo de negocio"
+- Carga tenantId con getDemoTenant() en useEffect
+
+TAREA 5 - Al terminar
+Crea .agent-status/clinica/DONE.md con lista de archivos y: Estado: LISTO_PARA_QA

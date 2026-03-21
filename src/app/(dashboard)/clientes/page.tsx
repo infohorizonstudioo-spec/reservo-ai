@@ -2,9 +2,14 @@
 export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { supabase, getDemoTenant } from '@/lib/supabase'
+import { useTenantType } from '@/lib/tenant-context'
 import type { Customer } from '@/types'
+import LeadsKanban from '@/components/realestate/LeadsKanban'
+import MascotasView from '@/components/vet/MascotasView'
 
 export default function ClientesPage() {
+  const tenantType = useTenantType()
+  const [tenantId, setTenantId] = useState<string | null>(null)
   const [customers, setCustomers] = useState<Customer[]>([])
   const [search, setSearch] = useState('')
 
@@ -12,11 +17,21 @@ export default function ClientesPage() {
     async function load() {
       const t = await getDemoTenant()
       if (!t) return
+      setTenantId(t.id)
+      if (t.type === 'realestate' || t.type === 'veterinary') return
       const { data } = await supabase.from('customers').select('*').eq('tenant_id', t.id).order('visits', { ascending: false })
       setCustomers(data || [])
     }
     load()
   }, [])
+
+  if (tenantType === 'veterinary' && tenantId) {
+    return <MascotasView tenantId={tenantId} />
+  }
+
+  if (tenantType === 'realestate' && tenantId) {
+    return <LeadsKanban tenantId={tenantId} />
+  }
 
   const filtered = customers.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||

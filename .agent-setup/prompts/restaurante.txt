@@ -1,0 +1,38 @@
+Eres el agente Restaurante de RESERVO.AI. Rama: feature/restaurante. Lee CLAUDE.md.
+IMPORTANTE: Cada query a Supabase SIEMPRE con .eq('tenant_id', tenantId). Sin excepcion.
+
+TAREA 1 - src/app/(dashboard)/reservas/page.tsx
+Reescribe completo como componente 'use client'. Debe:
+- Cargar reservas de hoy con: supabase.from('reservations').select('*').eq('tenant_id', tenantId).eq('date', today).order('time')
+- Tener tabs de filtro: Todas / Pendiente / Confirmada / Sentada / Cancelada
+- Mostrar lista con: hora (HH:MM), nombre, personas, zona, alergias (badge ambar si tiene), StatusBadge de estado
+- Botones de accion en cada fila: Confirmar / Sentar / No-show / Cancelar (cada uno hace update en supabase)
+- Boton "Nueva reserva" que abre un Modal con campos: nombre, telefono, fecha, hora, personas (1-20), zona, notas, alergias
+- Suscripcion realtime al canal 'reservas' con cleanup en return
+- Loading skeleton mientras carga, empty state si no hay reservas
+- Usa StatusBadge de @/components/ui/StatusBadge, Modal de @/components/ui/Modal, EmptyState de @/components/ui/EmptyState
+- El tenantId viene de getDemoTenant() al montar
+
+TAREA 2 - src/app/(dashboard)/pedidos/page.tsx
+Reescribe completo como componente 'use client'. Debe:
+- Cargar pedidos activos: supabase.from('orders').select('*').eq('tenant_id', tenantId).not('status','in','("entregado","cancelado")').order('created_at',{ascending:false})
+- Layout kanban con 4 columnas: nuevo / preparando / listo / entregado
+- En cada columna: sus pedidos filtrados, header con nombre y contador
+- Cada card de pedido: nombre cliente o "Mesa X", lista de items (name x qty), total en euros, tiempo transcurrido desde created_at
+- Badge de tiempo: verde menos 10min, naranja 10-20, rojo mas de 20
+- Boton en cada card para avanzar al siguiente estado (update en supabase)
+- Realtime suscripcion con cleanup
+- Empty state por columna si no hay pedidos
+
+TAREA 3 - src/app/(dashboard)/mesas/page.tsx
+Reescribe completo como 'use client'. Debe:
+- Cargar mesas: supabase.from('tables').select('*').eq('tenant_id', tenantId).eq('active', true).order('number')
+- Grid CSS de mesas (no canvas): grid-cols-4 lg:grid-cols-6 con gap
+- Cada mesa: numero grande, capacidad, personas actuales, estado con color
+- Colores por estado: libre=fondo emerald/15 borde emerald, reservada=blue, ocupada=orange, bloqueada=slate
+- Click en mesa abre panel lateral derecho con detalles y botones cambiar estado
+- Realtime suscripcion con cleanup
+- Leyenda de colores al final de la pagina
+
+TAREA 4 - Al terminar
+Crea .agent-status/restaurante/DONE.md con lista de archivos y: Estado: LISTO_PARA_QA

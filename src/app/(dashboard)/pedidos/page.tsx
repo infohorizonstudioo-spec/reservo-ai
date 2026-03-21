@@ -1,117 +1,135 @@
 'use client'
-export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { supabase, getDemoTenant } from '@/lib/supabase'
-import type { Order } from '@/types'
+import { Order, Tenant } from '@/types'
+import { EmptyState } from '@/components/ui/EmptyState'
+import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
 
-const STATUS_CFG: Record<string,{label:string;cls:string;next:string;nextLabel:string}> = {
-  nuevo:      {label:'Nuevo',     cls:'bg-amber-500/15 text-amber-400 border-amber-500/25',    next:'confirmado', nextLabel:'Confirmar'},
-  confirmado: {label:'Confirmado',cls:'bg-blue-500/15 text-blue-400 border-blue-500/25',       next:'preparando', nextLabel:'Preparar'},
-  preparando: {label:'Preparando',cls:'bg-orange-500/15 text-orange-400 border-orange-500/25', next:'listo',      nextLabel:'Listo'},
-  listo:      {label:'Listo',     cls:'bg-emerald-500/15 text-emerald-400 border-emerald-500/25', next:'enviado', nextLabel:'Enviar'},
-  enviado:    {label:'Enviado',   cls:'bg-purple-500/15 text-purple-400 border-purple-500/25', next:'entregado',  nextLabel:'Entregado'},
-  entregado:  {label:'Entregado', cls:'bg-white/8 text-white/30 border-white/10',              next:'',           nextLabel:''},
-  cancelado:  {label:'Cancelado', cls:'bg-red-500/15 text-red-400 border-red-500/25',          next:'',           nextLabel:''},
+type OrderStatus = Order['status']
+const COLS: { key: OrderStatus; label: string; next?: OrderStatus; color: string }[] = [
+  { key: 'nuevo',      label: 'Nuevo',      next: 'preparando', color: 'border-violet-500/20' },
+  { key: 'preparando', label: 'Preparando', next: 'listo',      color: 'border-orange-500/20' },
+  { key: 'listo',      label: 'Listo',      next: 'entregado',  color: 'border-emerald-500/20' },
+  { key: 'entregado',  label: 'Entregado',                      color: 'border-white/10' },
+]
+
+function timeColor(createdAt: string) {
+  const mins = (Date.now() - new Date(createdAt).getTime()) / 60000
+  if (mins < 10) return 'text-emerald-400'
+  if (mins < 20) return 'text-amber-400'
+  return 'text-red-400'
+}
+function timeBg(createdAt: string) {
+  const mins = (Date.now() - new Date(createdAt).getTime()) / 60000
+  if (mins < 10) return 'bg-emerald-500/10'
+  if (mins < 20) return 'bg-amber-500/10'
+  return 'bg-red-500/10'
+}
+function timeLabel(createdAt: string) {
+  const mins = Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000)
+  return mins < 60 ? `${mins}m` : `${Math.floor(mins / 60)}h ${mins % 60}m`
 }
 
 export default function PedidosPage() {
+  const [tenant, setTenant] = useState<Tenant | null>(null)
   const [orders, setOrders] = useState<Order[]>([])
-  const [filter, setFilter] = useState('activos')
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function load() {
-      const t = await getDemoTenant()
-      if (!t) return
-      const { data } = await supabase.from('orders').select('*').eq('tenant_id', t.id).order('created_at', { ascending: false })
-      setOrders(data || [])
-    }
-    load()
-    // eslint-disable-next-line
-  }, [])
-
-  async function updateStatus(id: string, status: string) {
-    await supabase.from('orders').update({ status, updated_at: new Date().toISOString() }).eq('id', id)
-    setOrders(prev => prev.map(o => o.id === id ? {...o, status: status as any} : o))
+  async function load(tid: string) {
+    const { data } = await supabase.from('orders').select('*')
+      .eq('tenant_id', tid)
+      .not('status', 'in', '("entregado","cancelado")')
+      .order('created_at', { ascending: false })
+    setOrders(data || [])
+    setLoading(false)
   }
 
-  const filtered = filter === 'activos'
-    ? orders.filter(o => !['entregado','cancelado'].includes(o.status))
-    : filter === 'todos' ? orders
-    : orders.filter(o => o.status === filter)
+  useEffect(() => {
+    getDemoTenant().then(t => {
+      if (!t) return setLoading(false)
+      setTenant(t)
+      load(t.id)
+      const ch = supabase.channel('pedidos-rt')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => load(t.id))
+        .subscribe()
+      return () => { supabase.removeChannel(ch) }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
-  const active = orders.filter(o => !['entregado','cancelado'].includes(o.status))
-  const urgent = orders.filter(o => o.priority === 'urgente' && !['entregado','cancelado'].includes(o.status))
+  async function advance(id: string, next: OrderStatus) {
+    if (!tenant) return
+    await supabase.from('orders').update({ status: next, updated_at: new Date().toISOString() })
+      .eq('id', id).eq('tenant_id', tenant.id)
+  }
 
   return (
     <div className="p-6 space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Pedidos</h1>
-          <p className="text-white/40 text-sm">{active.length} activos{urgent.length > 0 ? ` · ${urgent.length} urgentes` : ''}</p>
-        </div>
+      <div>
+        <h1 className="text-xl font-bold">Pedidos</h1>
+        <p className="text-white/40 text-xs mt-0.5">{orders.length} pedido{orders.length !== 1 ? 's' : ''} activos</p>
       </div>
 
-      <div className="flex gap-1">
-        {['activos','todos','nuevo','preparando','listo'].map(f => (
-          <button key={f} onClick={() => setFilter(f)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all
-              ${filter===f ? 'bg-white/12 text-white' : 'text-white/35 hover:text-white/60 hover:bg-white/5'}`}>
-            {f} <span className="text-white/20 ml-1">{f==='activos'?active.length:f==='todos'?orders.length:orders.filter(o=>o.status===f).length}</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {filtered.length === 0 ? (
-          <div className="col-span-full glass rounded-2xl py-16 text-center text-white/25 text-sm">Sin pedidos</div>
-        ) : filtered.map(order => {
-          const cfg = STATUS_CFG[order.status] || STATUS_CFG.nuevo
-          return (
-            <div key={order.id} className={`glass rounded-2xl overflow-hidden border transition-all
-              ${order.priority === 'urgente' ? 'border-red-500/30 shadow-red-500/10 shadow-lg' : 'border-white/[0.07]'}`}>
-              <div className={`flex items-center justify-between px-4 py-3 border-b border-white/[0.06]`}>
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs px-2.5 py-1 rounded-full border ${cfg.cls}`}>{cfg.label}</span>
-                  {order.priority === 'urgente' && <span className="text-xs bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded-full">Urgente</span>}
+      {loading ? <LoadingSkeleton type="card" /> : (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 items-start">
+          {COLS.map(col => {
+            const colOrders = orders.filter(o => o.status === col.key)
+            return (
+              <div key={col.key} className={`glass rounded-2xl border ${col.color} overflow-hidden`}>
+                <div className="px-4 py-3 border-b border-white/[0.05] flex items-center justify-between">
+                  <span className="text-xs font-semibold">{col.label}</span>
+                  <span className="text-[11px] text-white/30 bg-white/[0.05] px-2 py-0.5 rounded-full">
+                    {colOrders.length}
+                  </span>
                 </div>
-                <span className="text-xs text-white/25 font-mono">
-                  {new Date(order.created_at).toLocaleTimeString('es-ES', {hour:'2-digit',minute:'2-digit'})}
-                </span>
-              </div>
-              <div className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold">{order.customer_name || '—'}</p>
-                    <p className="text-xs text-white/35 capitalize">{order.type}</p>
-                  </div>
-                  <span className="font-bold text-lg">{order.total.toFixed(2)}€</span>
-                </div>
-                <div className="space-y-1">
-                  {(order.items || []).map((item, i) => (
-                    <div key={i} className="flex justify-between text-xs text-white/50">
-                      <span>{item.qty}x {item.name}</span>
-                      <span>{(item.qty*item.price).toFixed(2)}€</span>
+                <div className="p-2 space-y-2 min-h-[120px]">
+                  {colOrders.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8">
+                      <p className="text-[11px] text-white/20">Sin pedidos</p>
+                    </div>
+                  ) : colOrders.map(o => (
+                    <div key={o.id} className="bg-white/[0.03] border border-white/[0.05] rounded-xl p-3 space-y-2">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs font-medium leading-tight">
+                          {o.customer_name || `Mesa ${o.table_id?.slice(-4) || '?'}`}
+                        </p>
+                        <span className={`text-[11px] font-mono shrink-0 px-1.5 py-0.5 rounded-md ${timeColor(o.created_at)} ${timeBg(o.created_at)}`}>
+                          {timeLabel(o.created_at)}
+                        </span>
+                      </div>
+                      <div className="space-y-0.5">
+                        {o.items?.slice(0, 3).map((item, i) => (
+                          <p key={i} className="text-[11px] text-white/40">
+                            {item.name} ×{item.qty}
+                          </p>
+                        ))}
+                        {(o.items?.length || 0) > 3 && (
+                          <p className="text-[11px] text-white/25">+{o.items.length - 3} más</p>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white/70">{o.total?.toFixed(2)}€</span>
+                        {col.next && (
+                          <button onClick={() => advance(o.id, col.next!)}
+                            className="text-[11px] px-2.5 py-1 rounded-lg bg-white/[0.07]
+                              hover:bg-white/[0.12] text-white/60 transition-colors">
+                            Avanzar →
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
-                {order.notes && <p className="text-xs text-amber-300/70 bg-amber-500/5 border border-amber-500/15 rounded-lg px-3 py-2">📝 {order.notes}</p>}
-                {cfg.next && (
-                  <div className="flex gap-2 pt-1">
-                    <button onClick={() => updateStatus(order.id, cfg.next)}
-                      className="flex-1 bg-white text-gray-900 font-semibold py-2 rounded-xl text-sm hover:bg-white/90 transition-all active:scale-95">
-                      {cfg.nextLabel} →
-                    </button>
-                    <button onClick={() => updateStatus(order.id, 'cancelado')}
-                      className="w-9 h-9 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl hover:bg-red-500/20 transition-all text-sm flex items-center justify-center">
-                      ✕
-                    </button>
-                  </div>
-                )}
               </div>
-            </div>
-          )
-        })}
-      </div>
+            )
+          })}
+        </div>
+      )}
+
+      {!loading && orders.length === 0 && (
+        <EmptyState icon="🍳" title="Cocina tranquila por ahora"
+          description="Aquí aparecerán los pedidos activos en tiempo real." />
+      )}
     </div>
   )
 }

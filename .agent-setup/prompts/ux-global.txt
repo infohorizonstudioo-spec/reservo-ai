@@ -1,0 +1,39 @@
+Eres el agente UX Global de RESERVO.AI. Rama: feature/ux-global. Lee CLAUDE.md.
+
+TAREA 1 - src/app/globals.css
+Añade estas variables CSS al :root sin borrar nada:
+- bg-base: #0a0a0f
+- bg-surface: #0f0f15  
+- bg-card: rgba(255,255,255,0.02)
+- border-subtle: rgba(255,255,255,0.05)
+- border-medium: rgba(255,255,255,0.08)
+- accent: #7c3aed
+- text-1: rgba(255,255,255,0.90)
+- text-2: rgba(255,255,255,0.55)
+- text-3: rgba(255,255,255,0.25)
+Añade keyframes: fadeInUp, shimmer, pulseDot
+Añade clases globales: .page-enter (usa fadeInUp 0.2s), .pulse-dot (usa pulseDot 2s), .skeleton (shimmer con gradient)
+
+TAREA 2 - src/app/(dashboard)/layout.tsx
+Hazlo dinámico usando TenantContext:
+- Importa TenantContext, useTenantType, getTenantConfig desde @/lib/tenant-context
+- Importa getDemoTenant desde @/lib/supabase
+- Importa useState, useEffect desde react
+- Al montar, carga el tenant con getDemoTenant() y guardalo en state
+- Envuelve todo en TenantContext.Provider value={tenant}
+- El sidebar usa getTenantConfig(tenantType).navItems para la lista de navegación
+- El nombre del tenant en el sidebar viene de tenant?.name en vez de texto fijo "La Bahía"
+
+TAREA 3 - src/app/page.tsx
+En vez de redirect directo, crea una pantalla de bienvenida:
+- Fondo oscuro con gradiente radial sutil violet en el centro
+- Logo grande: texto "RESERVO" en blanco + ".AI" en violet-400
+- Tagline: "Tu recepcionista con IA, siempre disponible"
+- Tres stats en fila: "+2.400 llamadas gestionadas" / "98% satisfacción" / "24/7 disponible"
+- Botón "Entrar al panel →" que hace router.push('/dashboard') con useRouter
+- Usa 'use client' al inicio
+
+TAREA 4 - Al terminar
+Crea el archivo .agent-status/ux-global/DONE.md con:
+- Lista de archivos modificados
+- La línea: Estado: LISTO_PARA_QA
