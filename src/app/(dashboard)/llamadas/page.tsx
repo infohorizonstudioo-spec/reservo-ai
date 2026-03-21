@@ -3,15 +3,22 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { supabase, getDemoTenant } from '@/lib/supabase'
 import type { Call } from '@/types'
+import LeadCallPanel from '@/components/realestate/LeadCallPanel'
+import ClinicCallPanel from '@/components/clinic/ClinicCallPanel'
+import ConsultTrace from '@/components/clinic/ConsultTrace'
 
 export default function LlamadasPage() {
   const [calls, setCalls] = useState<Call[]>([])
   const [elapsed, setElapsed] = useState<Record<string,number>>({})
+  const [tenantType, setTenantType] = useState<string>('')
+  const [tenantId, setTenantId] = useState<string>('')
 
   useEffect(() => {
     async function load() {
       const t = await getDemoTenant()
       if (!t) return
+      setTenantType(t.type || '')
+      setTenantId(t.id)
       const { data } = await supabase.from('calls').select('*').eq('tenant_id', t.id).order('started_at', { ascending: false }).limit(20)
       setCalls(data || [])
     }
@@ -42,6 +49,10 @@ export default function LlamadasPage() {
         <h1 className="text-2xl font-bold">Llamadas</h1>
         <p className="text-white/40 text-sm">{active.length} activas · {history.length} en historial</p>
       </div>
+
+      {/* Panel inmobiliario */}
+      {tenantType === 'clinic' && tenantId && <ClinicCallPanel tenantId={tenantId} />}
+      {tenantType === 'realestate' && tenantId && <LeadCallPanel tenantId={tenantId} />}
 
       {/* Llamadas activas */}
       {active.length === 0 ? (
@@ -118,6 +129,9 @@ export default function LlamadasPage() {
           </div>
         </div>
       )}
+
+      {/* Trazabilidad clínica */}
+      {tenantType === 'clinic' && tenantId && <ConsultTrace tenantId={tenantId} />}
     </div>
   )
 }

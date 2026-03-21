@@ -1,3 +1,21 @@
+'use client'
+export const dynamic = 'force-dynamic'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { supabase, getDemoTenant } from '@/lib/supabase'
+import type { Tenant, Reservation, Order, Call, Alert } from '@/types'
+
+function StatusBadge({ status }: { status: string }) {
+  const colors: Record<string,string> = {
+    pendiente:'bg-amber-500/15 text-amber-400 border-amber-500/25',
+    confirmada:'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+    sentada:'bg-blue-500/15 text-blue-400 border-blue-500/25',
+    nuevo:'bg-amber-500/15 text-amber-400 border-amber-500/25',
+    preparando:'bg-orange-500/15 text-orange-400 border-orange-500/25',
+    listo:'bg-emerald-500/15 text-emerald-400 border-emerald-500/25',
+  }
+  return <span className={`text-[10px] px-2 py-0.5 rounded-full border ${colors[status] || 'bg-white/5 text-white/30 border-white/10'}`}>{status}</span>
+}
 
 export default function DashboardPage() {
   const [tenant, setTenant] = useState<Tenant | null>(null)

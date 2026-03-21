@@ -1,0 +1,17 @@
+LISTO
+
+Archivos creados:
+- src/types/realestate.ts (actualizado con LeadEvent, LeadIntent, OperationType, PropertyType, LeadCallState, LeadDecisionType)
+- src/lib/realestate-engine.ts (detectLeadIntent, extractLeadData, makeLeadDecision, calculateDaysSinceContact)
+- src/lib/realestate-memory.ts (por tenant: zonas, precios, tipos, operaciones)
+- src/components/realestate/LeadCallPanel.tsx (panel llamadas en tiempo real con captación de leads)
+
+Archivos existentes (ya en rama):
+- src/components/realestate/LeadsKanban.tsx (kanban 5 columnas con badges de contacto)
+- src/components/realestate/VisitasView.tsx (vista visitas HOY + PRÓXIMAS)
+- src/components/realestate/LeadModal.tsx (modal nuevo lead)
+
+Archivos modificados:
+- src/app/(dashboard)/clientes/page.tsx (ya tenía caso realestate → LeadsKanban)
+- src/app/(dashboard)/agenda/page.tsx (ya tenía caso realestate → VisitasView)
+- src/app/(dashboard)/llamadas/page.tsx (añadido LeadCallPanel si tenantType === 'realestate')
