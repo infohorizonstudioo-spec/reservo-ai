@@ -7,6 +7,7 @@ import type { Reservation } from '@/types'
 import AgendaClinica from '@/components/clinic/AgendaClinica'
 import AgendaVet from '@/components/vet/AgendaVet'
 import VisitasView from '@/components/realestate/VisitasView'
+import AgendaPsico from '@/components/psychology/AgendaPsico'
 
 const HOURS = Array.from({length:14}, (_,i) => i + 9)
 
@@ -53,6 +54,7 @@ export default function AgendaPage() {
   if (tenantType === 'clinic') return <AgendaClinica tenantId={tenantId} />
   if (tenantType === 'veterinary') return <AgendaVet tenantId={tenantId} />
   if (tenantType === 'realestate') return <VisitasView tenantId={tenantId} />
+  if (tenantType === 'psychology') return <AgendaPsico tenantId={tenantId} />
 
   // Restaurant agenda
   const dayRes = reservations.filter(r => r.date === selectedDate)

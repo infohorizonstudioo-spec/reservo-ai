@@ -1,0 +1,28 @@
+# HANDOFF: VETERINARY
+
+## Qué hice
+Sistema completo de recepción veterinaria: tipos, motor de IA, memoria por tenant, panel de llamadas en tiempo real, agenda veterinaria y vista de mascotas. La mascota es protagonista en todas las vistas.
+
+## Archivos modificados
+- src/types/veterinary.ts — Añadidos tipos VetConsultType, VetCallState, VetDecision, VetConsultationEvent
+- src/app/(dashboard)/llamadas/page.tsx — Añadido VetCallPanel para tenantType === 'veterinary'
+
+## Archivos nuevos
+- src/lib/vet-engine.ts — Motor: detectVetUrgency, classifyVetConsult, getVetDuration, detectPetSpecies, makeVetDecision
+- src/lib/vet-memory.ts — Memoria por tenant: consultas frecuentes, duraciones reales, patrones de urgencia
+- src/components/vet/VetCallPanel.tsx — Panel de llamadas en tiempo real con estados animados, urgencia pulsante, emoji por especie
+
+## Archivos preexistentes (ya estaban creados)
+- src/components/vet/AgendaVet.tsx — Agenda veterinaria (vista día, urgencias, mock data)
+- src/components/vet/MascotasView.tsx — Vista mascotas/propietarios con tabs y búsqueda
+- src/components/vet/CitaVetModal.tsx — Modal nueva cita veterinaria
+
+## Tests que corren
+- Build check pendiente
+
+## Advertencias para QA
+- Tablas Supabase (vet_appointments, pets, vet_consultation_events) usan fallback a mock data si no existen
+- Panel de llamadas usa suscripción real-time a vet_consultation_events
+- Verificar que el tenant de demo tenga type='veterinary' para probar la vertical
+
+## Estado: LISTO_PARA_QA

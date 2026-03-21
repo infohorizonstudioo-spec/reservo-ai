@@ -6,6 +6,8 @@ import type { Call } from '@/types'
 import LeadCallPanel from '@/components/realestate/LeadCallPanel'
 import ClinicCallPanel from '@/components/clinic/ClinicCallPanel'
 import ConsultTrace from '@/components/clinic/ConsultTrace'
+import PsychCallPanel from '@/components/psychology/PsychCallPanel'
+import VetCallPanel from '@/components/vet/VetCallPanel'
 
 export default function LlamadasPage() {
   const [calls, setCalls] = useState<Call[]>([])
@@ -53,6 +55,8 @@ export default function LlamadasPage() {
       {/* Panel inmobiliario */}
       {tenantType === 'clinic' && tenantId && <ClinicCallPanel tenantId={tenantId} />}
       {tenantType === 'realestate' && tenantId && <LeadCallPanel tenantId={tenantId} />}
+      {tenantType === 'psychology' && tenantId && <PsychCallPanel tenantId={tenantId} />}
+      {tenantType === 'veterinary' && tenantId && <VetCallPanel tenantId={tenantId} />}
 
       {/* Llamadas activas */}
       {active.length === 0 ? (

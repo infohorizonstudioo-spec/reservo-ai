@@ -2,7 +2,7 @@
 import { createContext, useContext } from 'react'
 import { Tenant } from '@/types'
 
-export type TenantType = 'restaurant' | 'clinic' | 'veterinary' | 'realestate' | 'other'
+export type TenantType = 'restaurant' | 'clinic' | 'veterinary' | 'realestate' | 'psychology' | 'other'
 
 export interface NavItem {
   href: string
@@ -28,6 +28,7 @@ export function useTenantType(): TenantType {
   if (t === 'clinic') return 'clinic'
   if (t === 'veterinary') return 'veterinary'
   if (t === 'realestate') return 'realestate'
+  if (t === 'psychology') return 'psychology'
   return 'restaurant'
 }
 
@@ -77,6 +78,17 @@ export function getTenantConfig(type: TenantType): TenantConfig {
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
         { href: '/clientes',  icon: '◉', label: 'Leads' },
         { href: '/agenda',    icon: '▦', label: 'Visitas' },
+      ],
+    },
+    psychology: {
+      primaryEntity: 'sesión',
+      defaultRoute: '/agenda',
+      accentColor: 'slate',
+      navItems: [
+        { href: '/dashboard', icon: '◈', label: 'Dashboard' },
+        { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
+        { href: '/agenda',    icon: '▦', label: 'Agenda' },
+        { href: '/clientes',  icon: '◉', label: 'Pacientes' },
       ],
     },
     other: {

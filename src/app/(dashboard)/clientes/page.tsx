@@ -6,7 +6,7 @@ import { useTenantType } from '@/lib/tenant-context'
 import type { Customer, Reservation } from '@/types'
 import LeadsKanban from '@/components/realestate/LeadsKanban'
 import MascotasView from '@/components/vet/MascotasView'
-import PacientesClinica from '@/components/clinic/PacientesClinica'
+import PacientesPsico from '@/components/psychology/PacientesPsico'
 
 export default function ClientesPage() {
   const tenantType = useTenantType()
@@ -22,15 +22,15 @@ export default function ClientesPage() {
       const t = await getDemoTenant()
       if (!t) return
       setTenantId(t.id)
-      if (t.type === 'realestate' || t.type === 'veterinary') return
+      if (t.type === 'realestate' || t.type === 'veterinary' || t.type === 'psychology') return
       const { data } = await supabase.from('customers').select('*').eq('tenant_id', t.id).order('visits', { ascending: false })
       setCustomers(data || [])
     }
     load()
   }, [])
 
-  if (tenantType === 'clinic' && tenantId) {
-    return <PacientesClinica tenantId={tenantId} />
+  if (tenantType === 'psychology' && tenantId) {
+    return <PacientesPsico tenantId={tenantId} />
   }
 
   if (tenantType === 'veterinary' && tenantId) {
