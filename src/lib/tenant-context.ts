@@ -2,7 +2,7 @@
 import { createContext, useContext } from 'react'
 import { Tenant } from '@/types'
 
-export type TenantType = 'restaurant' | 'clinic' | 'veterinary' | 'realestate' | 'ecommerce' | 'other'
+export type TenantType = 'restaurant' | 'clinic' | 'veterinary' | 'realestate' | 'ecommerce' | 'physiotherapy' | 'psychology' | 'other'
 
 export interface NavItem {
   href: string
@@ -89,6 +89,28 @@ export function getTenantConfig(type: TenantType): TenantConfig {
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
         { href: '/pedidos',   icon: '▤', label: 'Pedidos' },
         { href: '/clientes',  icon: '◉', label: 'Clientes' },
+      ],
+    },
+    physiotherapy: {
+      primaryEntity: 'cita',
+      defaultRoute: '/agenda',
+      accentColor: 'blue',
+      navItems: [
+        { href: '/dashboard', icon: '◈', label: 'Dashboard' },
+        { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
+        { href: '/agenda',    icon: '▦', label: 'Agenda' },
+        { href: '/clientes',  icon: '◉', label: 'Pacientes' },
+      ],
+    },
+    psychology: {
+      primaryEntity: 'sesion',
+      defaultRoute: '/agenda',
+      accentColor: 'blue',
+      navItems: [
+        { href: '/dashboard', icon: '◈', label: 'Dashboard' },
+        { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
+        { href: '/agenda',    icon: '▦', label: 'Agenda' },
+        { href: '/clientes',  icon: '◉', label: 'Pacientes' },
       ],
     },
     other: {
