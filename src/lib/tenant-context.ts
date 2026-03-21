@@ -2,7 +2,7 @@
 import { createContext, useContext } from 'react'
 import { Tenant } from '@/types'
 
-export type TenantType = 'restaurant' | 'clinic' | 'veterinary' | 'realestate' | 'ecommerce' | 'physiotherapy' | 'psychology' | 'other'
+export type TenantType = 'restaurant' | 'clinic' | 'veterinary' | 'realestate' | 'psychology' | 'other'
 
 export interface NavItem {
   href: string
@@ -28,7 +28,7 @@ export function useTenantType(): TenantType {
   if (t === 'clinic') return 'clinic'
   if (t === 'veterinary') return 'veterinary'
   if (t === 'realestate') return 'realestate'
-  if (t === 'ecommerce') return 'ecommerce'
+  if (t === 'psychology') return 'psychology'
   return 'restaurant'
 }
 
@@ -80,32 +80,10 @@ export function getTenantConfig(type: TenantType): TenantConfig {
         { href: '/agenda',    icon: '▦', label: 'Visitas' },
       ],
     },
-    ecommerce: {
-      primaryEntity: 'pedido',
-      defaultRoute: '/pedidos',
-      accentColor: 'violet',
-      navItems: [
-        { href: '/dashboard', icon: '◈', label: 'Dashboard' },
-        { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
-        { href: '/pedidos',   icon: '▤', label: 'Pedidos' },
-        { href: '/clientes',  icon: '◉', label: 'Clientes' },
-      ],
-    },
-    physiotherapy: {
-      primaryEntity: 'cita',
-      defaultRoute: '/agenda',
-      accentColor: 'blue',
-      navItems: [
-        { href: '/dashboard', icon: '◈', label: 'Dashboard' },
-        { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
-        { href: '/agenda',    icon: '▦', label: 'Agenda' },
-        { href: '/clientes',  icon: '◉', label: 'Pacientes' },
-      ],
-    },
     psychology: {
-      primaryEntity: 'sesion',
+      primaryEntity: 'sesión',
       defaultRoute: '/agenda',
-      accentColor: 'blue',
+      accentColor: 'slate',
       navItems: [
         { href: '/dashboard', icon: '◈', label: 'Dashboard' },
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },

@@ -1,0 +1,29 @@
+# HANDOFF: PSYCHOLOGY
+## Qué hice
+Sistema de recepción para consultas psicológicas con tono empático, privacidad del paciente como prioridad, y paleta neutra (slate/gris). Incluye agenda de sesiones (50min), panel de llamadas en tiempo real con detección de urgencia emocional, y lista de pacientes minimal sin datos clínicos expuestos.
+
+## Archivos modificados
+- src/app/(dashboard)/agenda/page.tsx — añadido caso psychology → AgendaPsico
+- src/app/(dashboard)/clientes/page.tsx — añadido caso psychology → PacientesPsico
+- src/app/(dashboard)/llamadas/page.tsx — añadido PsychCallPanel
+- src/lib/tenant-context.ts — añadido tipo 'psychology' con nav y config
+
+## Archivos nuevos
+- src/types/psychology.ts — tipos: PsychAppointment, PsychPatient, PsychConsultationEvent, etc.
+- src/lib/psych-engine.ts — detectEmotionalUrgency, classifySession, getPsychDuration, labels y colores
+- src/lib/psych-memory.ts — memoria por tenant (tipos frecuentes, patrones, duración)
+- src/components/psychology/AgendaPsico.tsx — vista de día con timeline + panel lateral, mock data
+- src/components/psychology/PacientesPsico.tsx — lista minimal: nombre, tel, sesiones, próxima cita, modalidad
+- src/components/psychology/PsychCallPanel.tsx — panel de consultas en curso con urgencia emocional
+
+## Tests que corren
+- Build compila sin errores propios (errores preexistentes de clinic-engine, ClinicCallPanel, ConsultTrace no son de este agente)
+- Mock data funcional para todas las vistas
+
+## Advertencias para QA
+- Si urgencia === 'crisis' se muestra banner con línea 024 (atención a conducta suicida)
+- Nunca se exponen motivos detallados ni datos clínicos en listas
+- Tablas Supabase (psych_appointments, psych_patients, psych_consultation_events) aún no creadas — se usa mock data como fallback
+- Se reemplazó import PacientesClinica (que no existía) por PacientesPsico en clientes/page.tsx
+
+## Estado: LISTO_PARA_QA

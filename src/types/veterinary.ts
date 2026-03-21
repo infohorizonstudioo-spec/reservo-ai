@@ -8,6 +8,10 @@ export type VetAppointmentType =
   | 'cirugia'
   | 'peluqueria'
 
+export type VetConsultType = 'revision' | 'vacuna' | 'tratamiento' | 'urgencia' | 'otro'
+export type VetCallState = 'incoming' | 'listening' | 'processing' | 'speaking' | 'collecting_data'
+export type VetDecision = 'confirmar_cita' | 'sugerir_alternativa' | 'pending_review' | 'escalar_urgencia'
+
 export interface Pet {
   id: string
   tenant_id: string
@@ -39,4 +43,22 @@ export interface VetAppointment {
   status: 'pendiente' | 'confirmada' | 'en_consulta' | 'completada' | 'cancelada'
   notes?: string
   created_at: string
+}
+
+export interface VetConsultationEvent {
+  id: string
+  tenant_id: string
+  call_id?: string
+  owner_name?: string
+  pet_name?: string
+  pet_species?: PetSpecies
+  reason?: string
+  consult_type?: VetConsultType
+  is_urgent: boolean
+  urgency_keywords?: string[]
+  state: VetCallState
+  decision?: VetDecision
+  collected_data: Record<string, any>
+  created_at: string
+  updated_at: string
 }
