@@ -34,7 +34,7 @@ export default function LeadModal({ onClose, onSave }: Props) {
       phone: form.phone || undefined,
       email: form.email || undefined,
       operation: form.operation,
-      property_type: form.property_type || undefined,
+      property_type: (form.property_type || undefined) as RealEstateLead['property_type'],
       zone: form.zone || undefined,
       budget_max: form.budget_max ? Number(form.budget_max) : undefined,
       source: form.source,
@@ -155,7 +155,7 @@ export default function LeadModal({ onClose, onSave }: Props) {
               <option value="manual">Manual</option>
               <option value="web">Web</option>
               <option value="portal">Portal inmobiliario</option>
-              <option value="telefono">Teléfono</option>
+              <option value="llamada">Teléfono</option>
               <option value="referido">Referido</option>
             </select>
           </div>

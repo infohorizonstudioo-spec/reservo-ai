@@ -26,7 +26,7 @@ const ALL_STATUSES: { value: LeadStatus; label: string }[] = [
 const MOCK_LEADS: RealEstateLead[] = [
   {
     id: '1', tenant_id: 'demo', name: 'María García López', phone: '+34 612 345 678',
-    email: 'maria@email.com', operation: 'compra', property_type: 'Piso',
+    email: 'maria@email.com', operation: 'compra', property_type: 'piso',
     zone: 'Centro', budget_max: 250000, status: 'nuevo', agent_name: 'Carlos',
     source: 'web', notes: 'Busca 3 habitaciones',
     last_contact: new Date(Date.now() - 5 * 86400000).toISOString(),
@@ -34,15 +34,15 @@ const MOCK_LEADS: RealEstateLead[] = [
   },
   {
     id: '2', tenant_id: 'demo', name: 'Javier Ruiz Martín', phone: '+34 623 456 789',
-    operation: 'alquiler', property_type: 'Local', zone: 'Ensanche',
+    operation: 'alquiler', property_type: 'local', zone: 'Ensanche',
     budget_max: 1200, status: 'contactado', agent_name: 'Laura',
-    source: 'telefono',
+    source: 'llamada',
     last_contact: new Date(Date.now() - 1 * 86400000).toISOString(),
     created_at: new Date(Date.now() - 8 * 86400000).toISOString(),
   },
   {
     id: '3', tenant_id: 'demo', name: 'Ana Fernández Díaz', phone: '+34 634 567 890',
-    email: 'ana.fd@email.com', operation: 'compra', property_type: 'Casa',
+    email: 'ana.fd@email.com', operation: 'compra', property_type: 'chalet',
     zone: 'Periferia Norte', budget_max: 380000, status: 'visita_agendada',
     agent_name: 'Carlos', source: 'referido',
     last_contact: new Date(Date.now() - 4 * 86400000).toISOString(),
@@ -50,7 +50,7 @@ const MOCK_LEADS: RealEstateLead[] = [
   },
   {
     id: '4', tenant_id: 'demo', name: 'Pedro Sánchez Gómez', phone: '+34 645 678 901',
-    operation: 'compra', property_type: 'Piso', zone: 'Zona Playa',
+    operation: 'compra', property_type: 'piso', zone: 'Zona Playa',
     budget_max: 420000, status: 'oferta', agent_name: 'Laura',
     source: 'portal',
     last_contact: new Date(Date.now() - 0.5 * 86400000).toISOString(),
@@ -58,7 +58,7 @@ const MOCK_LEADS: RealEstateLead[] = [
   },
   {
     id: '5', tenant_id: 'demo', name: 'Lucía Moreno Blanco', phone: '+34 656 789 012',
-    operation: 'alquiler', property_type: 'Piso', zone: 'Centro',
+    operation: 'alquiler', property_type: 'piso', zone: 'Centro',
     budget_max: 900, status: 'perdido', agent_name: 'Carlos',
     source: 'web', notes: 'Encontró otra opción',
     last_contact: new Date(Date.now() - 7 * 86400000).toISOString(),
