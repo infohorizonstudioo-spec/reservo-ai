@@ -11,11 +11,17 @@ export interface NavItem {
   badge?: string
 }
 
+export interface UnitLabels {
+  singular: string
+  plural: string
+}
+
 export interface TenantConfig {
   navItems: NavItem[]
   primaryEntity: string
   defaultRoute: string
   accentColor: string
+  unitLabels: UnitLabels
 }
 
 export const TenantContext = createContext<Tenant | null>(null)
@@ -38,6 +44,7 @@ export function getTenantConfig(type: TenantType): TenantConfig {
       primaryEntity: 'reserva',
       defaultRoute: '/dashboard',
       accentColor: 'violet',
+      unitLabels: { singular: 'Mesa', plural: 'Mesas' },
       navItems: [
         { href: '/dashboard', icon: '◈', label: 'Dashboard' },
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
@@ -51,6 +58,7 @@ export function getTenantConfig(type: TenantType): TenantConfig {
       primaryEntity: 'cita',
       defaultRoute: '/agenda',
       accentColor: 'blue',
+      unitLabels: { singular: 'Consulta', plural: 'Consultas' },
       navItems: [
         { href: '/dashboard', icon: '◈', label: 'Dashboard' },
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
@@ -62,6 +70,7 @@ export function getTenantConfig(type: TenantType): TenantConfig {
       primaryEntity: 'cita',
       defaultRoute: '/agenda',
       accentColor: 'teal',
+      unitLabels: { singular: 'Consulta', plural: 'Consultas' },
       navItems: [
         { href: '/dashboard', icon: '◈', label: 'Dashboard' },
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
@@ -73,6 +82,7 @@ export function getTenantConfig(type: TenantType): TenantConfig {
       primaryEntity: 'lead',
       defaultRoute: '/clientes',
       accentColor: 'amber',
+      unitLabels: { singular: 'Espacio', plural: 'Espacios' },
       navItems: [
         { href: '/dashboard', icon: '◈', label: 'Dashboard' },
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
@@ -84,6 +94,7 @@ export function getTenantConfig(type: TenantType): TenantConfig {
       primaryEntity: 'sesión',
       defaultRoute: '/agenda',
       accentColor: 'slate',
+      unitLabels: { singular: 'Sala', plural: 'Salas' },
       navItems: [
         { href: '/dashboard', icon: '◈', label: 'Dashboard' },
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
@@ -95,6 +106,7 @@ export function getTenantConfig(type: TenantType): TenantConfig {
       primaryEntity: 'pedido',
       defaultRoute: '/pedidos',
       accentColor: 'violet',
+      unitLabels: { singular: 'Mesa', plural: 'Mesas' },
       navItems: [
         { href: '/dashboard', icon: '◈', label: 'Dashboard' },
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
@@ -106,6 +118,7 @@ export function getTenantConfig(type: TenantType): TenantConfig {
       primaryEntity: 'cita',
       defaultRoute: '/agenda',
       accentColor: 'blue',
+      unitLabels: { singular: 'Camilla', plural: 'Camillas' },
       navItems: [
         { href: '/dashboard', icon: '◈', label: 'Dashboard' },
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },
@@ -117,6 +130,7 @@ export function getTenantConfig(type: TenantType): TenantConfig {
       primaryEntity: 'cliente',
       defaultRoute: '/dashboard',
       accentColor: 'violet',
+      unitLabels: { singular: 'Sillón', plural: 'Sillones' },
       navItems: [
         { href: '/dashboard', icon: '◈', label: 'Dashboard' },
         { href: '/llamadas',  icon: '⬤', label: 'Llamadas', badge: 'live' },

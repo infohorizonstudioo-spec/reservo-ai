@@ -11,18 +11,19 @@ import VetCallPanel from '@/components/vet/VetCallPanel'
 
 export default function LlamadasPage() {
   const [calls, setCalls] = useState<Call[]>([])
-  const [elapsed, setElapsed] = useState<Record<string,number>>({})
+  const [loading, setLoading] = useState(true)
   const [tenantType, setTenantType] = useState<string>('')
   const [tenantId, setTenantId] = useState<string>('')
 
   useEffect(() => {
     async function load() {
       const t = await getDemoTenant()
-      if (!t) return
+      if (!t) { setLoading(false); return }
       setTenantType(t.type || '')
       setTenantId(t.id)
       const { data } = await supabase.from('calls').select('*').eq('tenant_id', t.id).order('started_at', { ascending: false }).limit(20)
       setCalls(data || [])
+      setLoading(false)
     }
     load()
     const interval = setInterval(() => {
@@ -44,6 +45,16 @@ export default function LlamadasPage() {
     reservation: '📅 Reserva', order: '🍽️ Pedido', info: 'ℹ️ Información',
     cancel: '❌ Cancelación', complaint: '⚠️ Queja', unknown: '❓ Desconocida'
   }
+
+  if (loading) return (
+    <div className="p-6">
+      <div className="animate-pulse space-y-4">
+        <div className="h-8 w-40 bg-white/[0.06] rounded-lg" />
+        <div className="h-4 w-64 bg-white/[0.04] rounded-lg" />
+        <div className="h-40 bg-white/[0.03] rounded-2xl" />
+      </div>
+    </div>
+  )
 
   return (
     <div className="p-6 space-y-6">

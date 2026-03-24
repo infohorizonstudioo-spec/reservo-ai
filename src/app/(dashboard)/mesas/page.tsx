@@ -5,6 +5,7 @@ import { Table, Tenant } from '@/types'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingSkeleton } from '@/components/ui/LoadingSkeleton'
+import { getTenantConfig, TenantType } from '@/lib/tenant-context'
 
 type TableStatus = Table['status']
 
@@ -65,6 +66,10 @@ export default function MesasPage() {
     setSelected(prev => prev ? { ...prev, status } : null)
   }
 
+  const tenantType = (tenant?.type || 'restaurant') as TenantType
+  const config = getTenantConfig(tenantType)
+  const unitLabels = config.unitLabels
+
   const stats = {
     libres:     tables.filter(t => t.status === 'libre').length,
     ocupadas:   tables.filter(t => t.status === 'ocupada').length,
@@ -76,7 +81,7 @@ export default function MesasPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">Mesas</h1>
+          <h1 className="text-xl font-bold">{unitLabels.plural}</h1>
           <p className="text-white/40 text-xs mt-0.5">
             {stats.libres} libres · {stats.ocupadas} ocupadas · {stats.reservadas} reservadas
           </p>
@@ -84,8 +89,8 @@ export default function MesasPage() {
       </div>
 
       {loading ? <LoadingSkeleton type="card" /> : tables.length === 0 ? (
-        <EmptyState icon="⊞" title="Sin mesas configuradas"
-          description="Configura las mesas de tu restaurante para empezar." />
+        <EmptyState icon="⊞" title={`Sin ${unitLabels.plural.toLowerCase()} configuradas`}
+          description={`Configura ${unitLabels.plural.toLowerCase()} para empezar.`} />
       ) : (
         <div className="flex gap-5">
           {/* Grid de mesas */}
@@ -130,7 +135,7 @@ export default function MesasPage() {
           {selected && (
             <div className="w-72 shrink-0 glass rounded-2xl border border-white/[0.06] overflow-hidden">
               <div className="px-5 py-4 border-b border-white/[0.06] flex items-center justify-between">
-                <h2 className="font-semibold text-sm">Mesa {selected.number}</h2>
+                <h2 className="font-semibold text-sm">{unitLabels.singular} {selected.number}</h2>
                 <button onClick={() => setSelected(null)}
                   className="text-white/30 hover:text-white/70 transition-colors text-lg leading-none">
                   ✕
